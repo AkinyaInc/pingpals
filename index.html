@@ -1,0 +1,1361 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PingPals</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Lilita+One&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+[hidden]{display:none!important}
+body{margin:0}
+img{max-width:100%}
+/* Layout: title band, then a setup panel beside one live phone, then how it works */
+:root{
+  --bg:#eef3e6; --surface:#ffffff; --fg:#1d2618; --muted:#5b6852; --line:#d3dcc8;
+  --lime:#7cc142; --lime-ink:#2f5c10;
+  --on:#23a55a; --away:#f0b232; --off:#80848e;
+  --pop:"Lilita One","Arial Rounded MT Bold",system-ui,sans-serif;
+  --hero1:#7b2ff7; --hero2:#f107a3; --hero3:#ff8a00; --blue:#2d7cf6; --pink:#f23c87;
+  --glow1:rgba(123,47,247,.18); --glow2:rgba(241,7,163,.14); --glow3:rgba(124,193,66,.18);
+  --display:"Bricolage Grotesque", "Trebuchet MS", system-ui, sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141a10; --surface:#1d2617; --fg:#e8efe0; --muted:#a2b196; --line:#33402a;
+  --lime:#8fd650; --lime-ink:#c8f0a0; --glow1:rgba(123,47,247,.35); --glow2:rgba(241,7,163,.22); --glow3:rgba(124,193,66,.18); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141a10; --surface:#1d2617; --fg:#e8efe0; --muted:#a2b196; --line:#33402a;
+  --lime:#8fd650; --lime-ink:#c8f0a0; --glow1:rgba(123,47,247,.35); --glow2:rgba(241,7,163,.22); --glow3:rgba(124,193,66,.18); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);background-image:radial-gradient(circle at 8% 0%,var(--glow1),transparent 40%),radial-gradient(circle at 95% 10%,var(--glow2),transparent 38%),radial-gradient(circle at 50% 100%,var(--glow3),transparent 45%);background-attachment:fixed;color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:1100px;margin:0 auto;padding-block:28px 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{position:relative;overflow:hidden;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;margin-bottom:24px;
+  padding:34px 20px 30px;border-radius:30px;color:#fff;
+  background:linear-gradient(120deg,var(--hero1),var(--hero2) 55%,var(--hero3));background-size:200% 200%;animation:hue 12s ease-in-out infinite;
+  box-shadow:0 18px 40px rgba(123,47,247,.28)}
+@keyframes hue{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+header > *{position:relative;z-index:1}
+header .lede{margin:0 auto;color:rgba(255,255,255,.92);font-size:17px}
+header .eyebrow{display:inline-block;color:#fff;background:rgba(0,0,0,.18);padding:5px 12px;border-radius:999px;letter-spacing:.1em}
+header h1{font-family:var(--pop);font-weight:400;font-size:clamp(54px,11vw,104px);line-height:.95;letter-spacing:.01em;margin:6px 0 4px;
+  color:#fff;text-shadow:0 5px 0 rgba(0,0,0,.18),0 0 30px rgba(255,255,255,.35)}
+header h1 .p2{color:#fff35c}
+.logo{background:#fff;box-shadow:0 8px 0 rgba(0,0,0,.15);animation:bob 3s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(4deg)}}
+.floaters{position:absolute;inset:0;z-index:0;pointer-events:none}
+.floaters span{position:absolute;font-size:34px;opacity:.9;animation:drift 6s ease-in-out infinite;filter:drop-shadow(0 4px 0 rgba(0,0,0,.15))}
+.floaters span:nth-child(2){animation-delay:-1.5s;animation-duration:7s}
+.floaters span:nth-child(3){animation-delay:-3s;animation-duration:8s}
+.floaters span:nth-child(4){animation-delay:-2s;animation-duration:6.5s}
+.floaters span:nth-child(5){animation-delay:-4s;animation-duration:7.5s}
+.floaters span:nth-child(6){animation-delay:-5s;animation-duration:9s}
+@keyframes drift{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-14px) rotate(8deg)}}
+.tags{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:4px}
+.tags span{background:#fff;color:#2a0f4a;font-weight:700;font-size:14px;padding:7px 14px;border-radius:999px;box-shadow:0 4px 0 rgba(0,0,0,.15)}
+@media (prefers-reduced-motion:reduce){header,.logo,.floaters span{animation:none}}
+@media (max-width:620px){.floaters span{font-size:24px}.floaters span:nth-child(n+5){display:none}}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.switch{display:inline-flex;background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:5px;gap:4px;box-shadow:0 6px 18px rgba(60,20,110,.12)}
+.switch button{border:0;background:transparent;color:var(--fg);padding:9px 16px;border-radius:999px;font-weight:700;font-size:14px;transition:transform .15s,background .2s}
+.switch button:hover{transform:translateY(-1px)}
+.switch button[data-sec="default"][aria-selected="true"]{background:var(--lime);color:#14240a;box-shadow:0 4px 0 #4d8a22}
+.switch button[data-sec="translation"][aria-selected="true"]{background:var(--blue);color:#fff;box-shadow:0 4px 0 #1b56b5}
+.switch button[data-sec="games"][aria-selected="true"]{background:var(--pink);color:#fff;box-shadow:0 4px 0 #b3175e}
+.mechip{background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:4px 14px 4px 6px}
+.mechip{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;min-width:0}
+.mechip span.n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:14ch}
+.gmenu{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.gtile{border:0;border-radius:18px;padding:14px 12px;text-align:left;display:flex;flex-direction:column;gap:6px;color:#fff;min-height:132px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.25)}
+.gtile .gi{font-size:30px;line-height:1}
+.gtile b{font-family:var(--display);font-size:17px;line-height:1.1}
+.gtile small{font-size:12px;opacity:.9;line-height:1.3}
+.gtile:hover{filter:brightness(1.08)}
+.ghead{grid-column:1/-1;margin:0;font-family:var(--display);font-size:20px}
+.back{border:0;background:rgba(255,255,255,.14);color:inherit;border-radius:999px;padding:6px 10px;font-weight:700;font-size:13px;flex:none}
+.logo{width:80px;height:80px;border-radius:22px;background:var(--lime);display:grid;place-items:center}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:700}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(28px,5vw,44px);line-height:1.05;margin:4px 0 8px;text-wrap:balance}
+.lede{max-width:66ch;color:var(--muted);margin:0}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+
+.main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,420px);gap:24px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.panel h2{font-family:var(--display);font-size:20px;margin:0}
+.lbl{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:6px;display:block}
+.namein{width:100%;font:inherit;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--fg)}
+.choices{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:var(--bg);color:var(--fg);border-radius:999px;padding:7px 14px;font-weight:700}
+.chip[aria-pressed="true"]{border-color:var(--lime);background:var(--lime);color:#14240a}
+.face-chip{width:44px;height:44px;border-radius:50%;padding:0;font-size:22px;display:grid;place-items:center}
+.hint{font-size:14px;color:var(--muted);margin:0}
+.who-list{display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto}
+.who-row{display:flex;align-items:center;gap:10px;font-size:14px}
+.who-row small{color:var(--muted)}
+.welcome{max-width:460px;margin:8px auto 0;background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:16px}
+.welcome{box-shadow:0 14px 34px rgba(123,47,247,.15);border-top:6px solid var(--hero2)}
+.welcome h2{font-family:var(--pop);font-weight:400;font-size:32px;margin:0;color:var(--hero2)}
+.join{border:0;border-radius:999px;padding:13px 20px;font-weight:700;background:linear-gradient(90deg,var(--hero1),var(--hero2));color:#fff;font-size:18px;box-shadow:0 5px 0 #5a1db8}
+.err{color:#c4372b;font-size:14px;margin:6px 0 0;min-height:1.2em}
+.me-row{display:flex;align-items:center;gap:10px}
+.me-row b{flex:1;min-width:0;overflow-wrap:anywhere}
+.link-btn{border:0;background:transparent;color:var(--lime-ink);font-weight:700;text-decoration:underline;padding:4px}
+.banner{background:var(--bg);border:2px dashed var(--line);border-radius:14px;padding:12px;font-size:14px;color:var(--muted)}
+
+/* profile icon with status dot on the bottom left */
+.pf{position:relative;width:34px;height:34px;flex:none}
+.pf.s{width:28px;height:28px}
+.pf .face{width:100%;height:100%;border-radius:50%;display:grid;place-items:center;font-size:18px;line-height:1;background:rgba(124,193,66,.18);box-shadow:inset 0 0 0 2px rgba(124,193,66,.6)}
+.pf.s .face{font-size:15px}
+.pf .face.pic{overflow:hidden;background:#ddd}
+.pf .face.pic img{width:100%;height:100%;object-fit:cover;display:block}
+.iconbox{border:2px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.iconbox summary{cursor:pointer;font-weight:700;list-style:none;display:flex;align-items:center;gap:8px}
+.iconbox summary::-webkit-details-marker{display:none}
+.iconbox summary::after{content:"▾";margin-left:auto;opacity:.6}
+.iconbox[open] summary::after{content:"▴"}
+.icontabs{display:flex;gap:6px;flex-wrap:wrap}
+.icondrop{border:2px dashed var(--line);border-radius:14px;padding:16px;text-align:center;cursor:pointer;font-size:14px;color:var(--muted)}
+.icondrop.over{border-color:var(--hero2);background:var(--glow2)}
+.iconprev{display:flex;align-items:center;gap:12px}
+.iconprev .big{width:72px;height:72px;border-radius:50%;overflow:hidden;background:var(--bg);display:grid;place-items:center;font-size:36px;flex:none;box-shadow:inset 0 0 0 3px var(--line)}
+.iconprev .big img{width:100%;height:100%;object-fit:cover}
+.iconbtns{display:flex;flex-wrap:wrap;gap:8px}
+.ibtn{border:0;border-radius:999px;padding:8px 14px;font-weight:700;background:var(--hero2);color:#fff}
+.ibtn.alt{background:var(--bg);color:var(--fg);border:2px solid var(--line)}
+.ibtn:disabled{opacity:.55;cursor:wait}
+.icondesc{width:100%;font:inherit;font-size:14px;padding:9px 12px;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--fg)}
+.pf .dot{position:absolute;left:-2px;bottom:-2px;width:13px;height:13px;border-radius:50%;border:2.5px solid var(--ring,var(--surface));transition:background .3s}
+.pf.s .dot{width:11px;height:11px}
+.dot.online{background:var(--on)} .dot.away{background:var(--away)} .dot.offline{background:var(--off)}
+
+/* the phone */
+.phone{border-radius:30px;overflow:hidden;display:flex;flex-direction:column;height:600px;min-width:0;box-shadow:0 10px 30px rgba(30,45,20,.18);border:7px solid #1b1b1f}
+.top{padding:12px 14px 10px;display:flex;align-items:center;gap:10px}
+.title{font-weight:700;line-height:1.2;min-width:0}
+.title small{display:block;font-weight:400;font-size:12px;opacity:.75}
+.feed{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;gap:8px;align-items:flex-start;animation:pop .3s ease both;max-width:100%}
+.body{min-width:0;font-size:14px;line-height:1.35;overflow-wrap:anywhere}
+.whon{display:block;font-size:12px;font-weight:700;margin-bottom:1px}
+.via{display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:6px;margin-left:4px;vertical-align:1px}
+.sys{font-size:12px;opacity:.65;text-align:center;font-style:italic;margin:auto 0}
+@keyframes pop{from{transform:translateY(8px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+.typing{height:24px;padding:0 14px;display:flex;align-items:center;gap:6px;font-size:12px;opacity:.85}
+.typing[data-empty]{visibility:hidden}
+.tdots{display:inline-flex;gap:3px}
+.tdots i{width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 1.2s infinite}
+.tdots i:nth-child(2){animation-delay:.2s}.tdots i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,60%,100%{opacity:.25;transform:none}30%{opacity:1;transform:translateY(-3px)}}
+@media (prefers-reduced-motion:reduce){.row{animation:none}.tdots i{animation:none;opacity:.7}}
+form.compose{display:flex;gap:8px;padding:6px 10px 10px}
+form.compose input{flex:1;min-width:0;border-radius:999px;padding:10px 14px;font:inherit;font-size:14px}
+.send{border:0;border-radius:999px;padding:0 16px;font-weight:700}
+.send:disabled{opacity:.5;cursor:not-allowed}
+
+.ping{background:#f3f7ee;color:#1d2618;--ring:#f3f7ee}
+.ping .top{background:#7cc142;color:#14240a;--ring:#7cc142}
+.ping .body{background:#fff;padding:7px 12px;border-radius:4px 16px 16px 16px;box-shadow:0 1px 2px rgba(0,0,0,.08);max-width:80%}
+.ping .row.mine{flex-direction:row-reverse}
+.ping .row.mine .body{background:#2f5c10;color:#fff;border-radius:16px 4px 16px 16px}
+.ping .row.mine .whon{display:none}
+.ping .whon{color:#2f5c10}
+.ping input{background:#fff;border:2px solid #cfe2bd;color:#111}
+.ping .send{background:#2f5c10;color:#fff}
+.ping .back{background:rgba(0,0,0,.1)}
+.arcade{background:#1c1530;color:#efe9ff;--ring:#1c1530}
+.arcade .top{background:#2a1f47;color:#fff;--ring:#2a1f47}
+.arcade input{background:#2a1f47;border:0;color:#fff}
+.arcade .send{background:#f23c57;color:#fff}
+.arcade .body{background:#2a1f47;padding:7px 12px;border-radius:14px;max-width:85%}
+.arcade .row.mine{flex-direction:row-reverse}
+.arcade .row.mine .body{background:#f23c57}
+.arcade .row.mine .whon{display:none}
+.snap .back,.sms .back{background:rgba(0,0,0,.08)}
+.discord{background:#313338;color:#dbdee1;--ring:#313338}
+.discord .top{background:#2b2d31;color:#f2f3f5;--ring:#2b2d31}
+.discord .whon{color:#c9cdfb;font-size:13px}
+.discord input{background:#383a40;border:0;color:#f2f3f5}
+.discord .send{background:#5865f2;color:#fff}
+.discord .via{background:#4e5058;color:#dbdee1}
+.snap{background:#ffffff;color:#16191c;--ring:#ffffff}
+.snap .top{background:#fffc00;color:#111;--ring:#fffc00}
+.snap .body{border-left:3px solid #f23c57;padding-left:8px}
+.snap .row.mine .body{border-color:#0eadff}
+.snap .whon{text-transform:uppercase;letter-spacing:.04em}
+.snap input{background:#f1f1f3;border:0;color:#111}
+.snap .send{background:#111;color:#fffc00}
+.snap .via{background:#f1f1f3;color:#444}
+.sms{background:#ffffff;color:#111;--ring:#ffffff}
+.sms .top{background:#f6f6f8;color:#111;border-bottom:1px solid #e3e3e8;--ring:#f6f6f8}
+.sms .body{background:#e9e9eb;padding:7px 12px;border-radius:18px;max-width:80%}
+.sms .row.mine{flex-direction:row-reverse}
+.sms .row.mine .pf,.sms .row.mine .whon{display:none}
+.sms .row.mine .body{background:#34c759;color:#fff}
+.sms input{background:#fff;border:1px solid #d0d0d6;color:#111}
+.sms .send{background:#34c759;color:#fff}
+.sms .via{background:rgba(0,0,0,.08)}
+
+.gamebar{padding:8px 14px;display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:700}
+.gamebar[hidden]{display:none}
+.gb-row{display:flex;align-items:center;gap:8px}
+.gb-row .lab{width:62px;flex:none}
+.meter{flex:1;height:10px;border-radius:6px;background:rgba(127,127,127,.25);overflow:hidden}
+.meter i{display:block;height:100%;border-radius:6px;transition:width .3s}
+.hp i{background:linear-gradient(90deg,#f23c57,#ff8a3d)}
+.tm i{background:var(--on);transition:width .2s linear}
+.tm.low i{background:#f23c57}
+.hearts{letter-spacing:2px;font-size:14px}
+.robot-row .body{font-weight:700}
+.score{align-self:center;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(127,127,127,.18);animation:pop .3s ease both}
+.endcard{margin:auto;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center;padding:12px}
+.endcard .big{font-size:44px;line-height:1}
+.endcard h3{margin:0;font-family:var(--display);font-size:22px}
+.endcard p{margin:0;font-size:14px;opacity:.8;max-width:30ch}
+.gamebtn{border:0;border-radius:999px;padding:10px 20px;font-weight:700;background:#f23c57;color:#fff}
+.afk-invite{margin:8px auto 0;border:0;border-radius:999px;padding:8px 16px;font-weight:700;background:#f23c57;color:#fff;font-size:13px}
+.rpg{margin:auto;width:100%;border-radius:20px;padding:22px 18px;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center;
+  background:radial-gradient(circle at 50% 0%,#7a1630 0%,#2a0b14 60%,#12060a 100%);color:#ffe9d6;box-shadow:inset 0 0 0 2px #c9963a}
+.rpg .big{font-size:52px;line-height:1}
+.rpg h3{margin:0;font-family:var(--display);font-size:26px;letter-spacing:.02em;color:#ffd27a}
+.rpg p{margin:0;font-size:14px;opacity:.85;max-width:32ch}
+.rpg a.play{display:inline-block;text-decoration:none;border-radius:999px;padding:12px 24px;font-weight:700;background:#ffd27a;color:#2a0b14;font-size:17px}
+.rpg a.play:focus-visible{outline:3px solid #fff;outline-offset:3px}
+.rpg small{font-size:12px;opacity:.7}
+.rpg-friends{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;font-size:13px}
+.rpg-friends span{display:inline-flex;align-items:center;gap:6px}
+.anim{display:flex;flex-direction:column;gap:12px;width:100%}
+.drop{border:3px dashed currentColor;border-radius:18px;padding:22px 14px;text-align:center;opacity:.85;cursor:pointer;display:flex;flex-direction:column;gap:8px;align-items:center;transition:transform .15s,opacity .15s}
+.drop.over{transform:scale(1.02);opacity:1;background:rgba(124,193,66,.15)}
+.drop .big{font-size:40px;line-height:1}
+.drop b{font-size:17px}
+.drop small{font-size:12px;opacity:.75}
+.anim canvas,.anim img.out{display:block;max-width:100%;margin:0 auto;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.anim .opts{display:flex;flex-direction:column;gap:6px}
+.anim .opts .lab{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;opacity:.7}
+.anim .chips{display:flex;flex-wrap:wrap;gap:6px}
+.anim .chips button{border:2px solid rgba(127,127,127,.4);background:transparent;color:inherit;border-radius:999px;padding:5px 11px;font-weight:700;font-size:13px}
+.anim .chips button[aria-pressed="true"]{background:var(--lime);border-color:var(--lime);color:#14240a}
+.anim .acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.anim .acts button{border:0;border-radius:999px;padding:10px 18px;font-weight:700;background:var(--lime);color:#14240a}
+.anim .acts button.alt{background:rgba(127,127,127,.2);color:inherit}
+.anim .acts button:disabled{opacity:.5;cursor:wait}
+.anim textarea.desc{width:100%;border-radius:14px;padding:10px 12px;font:inherit;font-size:14px;border:2px solid rgba(127,127,127,.4);background:transparent;color:inherit;resize:vertical}
+.anim button.describe{align-self:flex-start;border:0;border-radius:999px;padding:9px 16px;font-weight:700;background:#f23c57;color:#fff}
+.anim button.describe:disabled{opacity:.6;cursor:wait}
+.anim .used{text-align:left}
+.anim .msg2{font-size:13px;text-align:center;opacity:.85;margin:0;min-height:1.2em}
+.videobtn{margin-top:10px;width:100%;border:2px solid var(--line);background:var(--bg);color:var(--fg);border-radius:14px;padding:10px 14px;font-weight:700;font-size:15px;text-align:left}
+.videobtn[aria-pressed="true"]{border-color:#e62117;background:#e62117;color:#fff}
+.vid{margin:auto;width:100%;display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
+.vid .screen{width:100%;aspect-ratio:16/9;max-width:100%;border-radius:16px;background:#0f0f0f;display:grid;place-items:center;color:#fff}
+.vid .screen span{width:64px;height:44px;border-radius:12px;background:#e62117;display:grid;place-items:center;font-size:20px}
+.vid label{font-size:12px;font-weight:700;opacity:.8}
+.vid input{width:100%;border-radius:999px;padding:10px 14px;font:inherit;font-size:14px;border:2px solid rgba(127,127,127,.4);background:transparent;color:inherit}
+.vid a.go{display:inline-block;text-decoration:none;border-radius:999px;padding:11px 22px;font-weight:700;background:#e62117;color:#fff}
+.vid a.go[aria-disabled="true"]{opacity:.45;pointer-events:none}
+.vid p{margin:0;font-size:13px;opacity:.8;max-width:34ch}
+.toasts{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;
+  padding-top:calc(10px + env(safe-area-inset-top,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.toast{pointer-events:auto;display:flex;align-items:center;gap:10px;max-width:420px;width:100%;background:var(--fg);color:var(--bg);border:0;border-radius:16px;padding:10px 14px;text-align:left;box-shadow:0 8px 24px rgba(0,0,0,.25);animation:drop .3s ease both;--ring:var(--fg)}
+.toast .tt{min-width:0;font-size:14px;line-height:1.3}
+.toast .tt b{display:block}
+.toast .tt span{display:block;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@keyframes drop{from{transform:translateY(-16px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.toast{animation:none}}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:11px;height:11px;border-radius:50%;display:inline-block}
+.how{margin-top:36px;display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.how h2{grid-column:1/-1;font-family:var(--pop);font-weight:400;font-size:34px;margin:0;color:var(--hero2)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.card h3{margin:0 0 4px;font-family:var(--display);font-size:20px;color:var(--lime-ink)}
+.card p{margin:0;color:var(--muted);font-size:15px}
+@media (max-width:820px){
+  .main{grid-template-columns:1fr}
+  .phone{order:-1;height:560px}
+  .how{grid-template-columns:1fr}
+  .gmenu{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="wrap">
+  <div class="topbar">
+    <div class="switch" role="tablist" aria-label="Choose where to go" id="switch">
+      <button type="button" role="tab" data-sec="default">💬 Default</button>
+      <button type="button" role="tab" data-sec="translation">🌉 Translator</button>
+      <button type="button" role="tab" data-sec="games">🎮 Games</button>
+    </div>
+    <div class="mechip" id="mechip" hidden></div>
+  </div>
+  <header>
+    <div class="floaters" aria-hidden="true">
+      <span style="left:5%;top:14%">💬</span><span style="right:6%;top:12%">🎮</span>
+      <span style="left:9%;bottom:12%">🌉</span><span style="right:10%;bottom:14%">🤖</span>
+      <span style="left:24%;top:6%">✨</span><span style="right:24%;bottom:6%">🎨</span>
+    </div>
+    <div class="logo" aria-hidden="true">
+      <svg width="56" height="48" viewBox="0 0 58 50"><path d="M4 6h30a4 4 0 0 1 4 4v14a4 4 0 0 1-4 4H16l-8 7v-7H4a4 4 0 0 1-4-4V10a4 4 0 0 1 4-4z" fill="#fff"/><path d="M54 20H26a4 4 0 0 0-4 4v12a4 4 0 0 0 4 4h16l8 7v-7h4a4 4 0 0 0 4-4V24a4 4 0 0 0-4-4z" fill="#fff" stroke="#7cc142" stroke-width="2"/><circle cx="12" cy="17" r="3" fill="#5865f2"/><circle cx="20" cy="17" r="3" fill="#5865f2"/><circle cx="32" cy="30" r="3" fill="#2fa84f"/><circle cx="40" cy="30" r="3" fill="#2fa84f"/><circle cx="48" cy="30" r="3" fill="#2fa84f"/></svg>
+    </div>
+    <div>
+      <div class="eyebrow">The Multi-App Group Chat Translator</div>
+      <h1>Ping<span class="p2">Pals</span></h1>
+      <p class="lede">Real people, real chat. Use the switch in the top corner: Default opens Ping, our own group chat. Translator is the Bridge Bot that connects Discord, Snapchat, and texting. Games has everything to do while your friends are away.</p>
+      <div class="tags" aria-hidden="true"><span>💬 Chat with friends</span><span>🌉 Connect any app</span><span>🎮 Play games</span><span>🎨 Make GIFs</span></div>
+    </div>
+  </header>
+
+  <form class="welcome" id="welcome">
+    <h2>Make your username</h2>
+    <p class="hint">No email or password. Just pick a username and an icon, and you're in.</p>
+    <div>
+      <label class="lbl" for="uname">Username</label>
+      <input class="namein" id="uname" maxlength="16" placeholder="like cool_tiger7" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <p class="err" id="uerr" role="alert"></p>
+    </div>
+    <div>
+      <span class="lbl">Your icon</span>
+      <div class="choices" id="faces"></div>
+    </div>
+    <p class="hint">Want your own picture as your icon? You can upload one after you join.</p>
+    <button class="join" type="submit">Join the chat</button>
+  </form>
+
+  <div class="main" id="main" hidden>
+    <aside class="panel">
+      <div id="conn" class="banner">Connecting to the chat…</div>
+      <div>
+        <span class="lbl">Signed in as</span>
+        <div class="me-row"><span id="mepf"></span><b id="mename"></b><button class="link-btn" type="button" id="change">Change</button></div>
+      </div>
+      <details class="iconbox" id="iconbox">
+        <summary>🖼️ Custom icon</summary>
+        <div class="icontabs choices" id="icontabs"></div>
+        <div id="tab-upload">
+          <div class="icondrop" id="icondrop" tabindex="0" role="button">Drop a picture here, tap to choose one, or copy an image from a website and paste it here</div>
+          <input type="file" id="iconfile" accept="image/*" hidden>
+        </div>
+        <div id="tab-gen" hidden>
+          <label class="lbl" for="icondesc">Describe your icon</label>
+          <input class="icondesc" id="icondesc" maxlength="120" placeholder="like: a ninja cat with sunglasses" autocomplete="off">
+          <div class="iconbtns" style="margin-top:8px"><button type="button" class="ibtn" id="icongen">✨ Generate</button></div>
+        </div>
+        <div class="iconprev"><div class="big" id="iconbig"></div><div class="iconbtns"><button type="button" class="ibtn" id="iconsave" disabled>Use this icon</button><button type="button" class="ibtn alt" id="iconclear">Back to emoji</button></div></div>
+        <p class="hint" id="iconnote">Your icon shows next to your name and messages for everyone in the chat.</p>
+      </details>
+      <p class="hint" id="modehint"></p>
+      <div id="appwrap">
+        <span class="lbl">Your app</span>
+        <div class="choices" id="apps"></div>
+      </div>
+      <div>
+        <span class="lbl">Your status</span>
+        <div class="choices" id="statuses"></div>
+      </div>
+      <div>
+        <span class="lbl" id="herelbl">Here now</span>
+        <div class="who-list" id="here"></div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--on)"></i>Online</span>
+        <span><i style="background:var(--away)"></i>Away / AFK</span>
+        <span><i style="background:var(--off)"></i>Offline</span>
+      </div>
+    </aside>
+
+    <section class="phone discord" id="phone" aria-label="Chat">
+      <div class="top"><button type="button" class="back" id="back" hidden>← Games</button><span id="mypf"></span><div class="title" id="title"></div></div>
+      <div class="gamebar" id="gamebar" hidden>
+        <div class="gb-row"><span class="lab">RoastBot</span><span class="meter hp"><i id="hpbar" style="width:100%"></i></span><span id="hptxt">100</span></div>
+        <div class="gb-row"><span class="lab">Time</span><span class="meter tm" id="tmwrap"><i id="tmbar" style="width:100%"></i></span><span id="tmtxt">30s</span></div>
+        <div class="gb-row"><span class="lab">Lives</span><span class="hearts" id="hearts">❤️❤️❤️</span><span style="margin-left:auto" id="wins"></span></div>
+      </div>
+      <div class="feed" id="feed" aria-live="polite"></div>
+      <div class="typing" id="typing" data-empty></div>
+      <form class="compose" id="compose">
+        <input id="msg" autocomplete="off" maxlength="500" aria-label="Message">
+        <button class="send" id="send">Send</button>
+      </form>
+    </section>
+  </div>
+
+  <section class="how">
+    <h2>How it works</h2>
+    <div class="card"><h3>Default: Ping</h3><p>Ping is PingPals' own group chat. Everyone who picks Default chats together in Ping, no other app needed.</p></div>
+    <div class="card"><h3>Translator</h3><p>The Bridge Bot turns on. Everyone in Translation mode sees every message, with a tag showing which app it came from, so friends on different apps can talk together.</p></div>
+    <div class="card"><h3>Online dots</h3><p>Every person has an icon with a dot on the bottom left. Green is online, yellow means away or AFK (no typing for 30 seconds, or the page is hidden), and gray means they left.</p></div>
+    <div class="card"><h3>AFK Game</h3><p>Friends offline? Battle RoastBot 3000. You have 30 seconds to roast the robot each round. Good roasts drain its battery. Weak roasts or running out of time cost you a life. Lose all 3 lives and RoastBot wins.</p></div>
+    <div class="card"><h3>RPG mode</h3><p>Opens the game Demon Conqueror in a new tab. While you play, your friends see "playing Demon Conqueror ⚔️" next to your name, so they know where you are.</p></div>
+    <div class="card"><h3>Animate Image</h3><p>Drag in a picture and describe how it should move, like "melt like ice cream with sparkles." The whole picture animates with effects like melting, waves, swirls, glitches, and fire. Then download it as a GIF.</p></div>
+    <div class="card"><h3>Watch a video</h3><p>Paste a YouTube link or type what you want to watch, and it opens on YouTube. Friends see "watching a video 📺" next to your name.</p></div>
+    <div class="card" style="grid-column:1/-1"><h3>Message alerts</h3><p>Playing a game or in a different chat? When a friend sends a message, an alert pops up at the top. Tap it to jump straight to that chat.</p></div>
+    <div class="card"><h3>Typing indicator</h3><p>When someone is writing, you see bouncing dots and their name. If the dots stop and nothing arrives, they might be AFK or doing something else.</p></div>
+  </section>
+</div>
+
+<script>
+const FACES=["🐯","🐱","🦁","🐼","🐰","🐸","🦊","🐶","🐵","🐧","🐙","🦄"];
+const APPS={discord:{name:"Discord",cls:"discord",room:"# hangout"},snap:{name:"Snapchat",cls:"snap",room:"Squad Chat"},text:{name:"Texting",cls:"sms",room:"Group Text"}};
+const GAME_MODES=["games","afk","rpg","animate","video"];
+const GAME_LIST=[
+  {id:"afk",icon:"🤖",name:"AFK Roast Battle",desc:"Out roast RoastBot 3000 before time runs out.",bg:"#f23c57"},
+  {id:"rpg",icon:"⚔️",name:"Demon Conqueror",desc:"Jump into the RPG and fight demons.",bg:"#7a1630"},
+  {id:"animate",icon:"🎨",name:"Animate Image",desc:"Turn any picture into a GIF.",bg:"#5865f2"},
+  {id:"video",icon:"📺",name:"Watch a Video",desc:"Find something fun on YouTube.",bg:"#e62117"}
+];
+function section(){return me.mode==="translation"?"translation":GAME_MODES.includes(me.mode)?"games":"default"}
+const STATUS_WORD={online:"Online",away:"Away (AFK)",offline:"Offline"};
+const $=s=>document.querySelector(s);
+
+function load(k,d){try{const v=localStorage.getItem(k);return v==null?d:v}catch(e){return d}}
+function save(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+const me={
+  name:load("bb.name",""),
+  face:load("bb.face",FACES[Math.floor(Math.random()*FACES.length)]),
+  app:load("bb.app","discord"),
+  mode:load("bb.mode","default"),
+  pick:load("bb.status","online") // what the person chose
+};
+let autoAway=false, typingNow=false, typingTimer=null, lastActive=Date.now();
+let db=null, room=null, myId=null, peers=[], messages=[], unsubMsgs=null;
+
+function myStatus(){ if(me.pick!=="online") return me.pick; return (autoAway||GAME_MODES.includes(me.mode))?"away":"online" }
+
+let avatars={}, myAvatar=load("bb.avatar","");
+function okAvatar(u){return typeof u==="string"&&/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(u)&&u.length<120000}
+function avatarFor(uid){
+  if(!uid) return "";
+  if(uid==="me"||(myId&&uid===myId)) return myAvatar;
+  return avatars[uid]||"";
+}
+function pf(face,status,small,uid){
+  const w=document.createElement("span"); w.className="pf"+(small?" s":"");
+  const f=document.createElement("span"); f.className="face";
+  const av=avatarFor(uid);
+  if(av){const im=document.createElement("img");im.src=av;im.alt="";f.classList.add("pic");f.appendChild(im)} else f.textContent=face||"🙂";
+  const d=document.createElement("span"); d.className="dot "+status; d.setAttribute("aria-label",STATUS_WORD[status]);
+  w.append(f,d); return w;
+}
+function chips(el,items,current,onPick,extra){
+  el.innerHTML="";
+  items.forEach(([val,label])=>{
+    const b=document.createElement("button"); b.type="button"; b.className="chip"+(extra?" "+extra:"");
+    b.textContent=label; b.setAttribute("aria-pressed",val===current); b.onclick=()=>onPick(val);
+    el.appendChild(b);
+  });
+}
+
+// --- who is here (from room presence) ---
+function visiblePeers(){
+  if(GAME_MODES.includes(me.mode)) return peers.filter(p=>p.presence&&p.presence.name&&!p.isMe);
+  return peers.filter(p=>p.presence&&p.presence.name&&
+    (me.mode==="translation"?p.presence.mode==="translation":p.presence.mode==="default"));
+}
+function statusOf(uid){
+  if(myId&&uid===myId) return myStatus();
+  const p=peers.find(x=>x.by===uid&&x.presence&&x.presence.name);
+  return p?(p.presence.status||"online"):"offline";
+}
+
+function renderSide(){
+  const joined=!!me.name;
+  $("#welcome").hidden=joined; $("#main").hidden=!joined;
+  chips($("#faces"),FACES.map(f=>[f,f]),me.face,v=>{me.face=v;save("bb.face",v);changed()},"face-chip");
+  $("#mename").textContent=me.name; const mp2=$("#mepf"); mp2.innerHTML=""; mp2.appendChild(pf(me.face,myStatus(),false,"me"));
+  chips($("#apps"),Object.entries(APPS).map(([k,a])=>[k,a.name]),me.app,v=>{me.app=v;save("bb.app",v);changed()});
+  $("#appwrap").hidden=me.mode!=="translation";
+  document.querySelectorAll("#switch button").forEach(b=>b.setAttribute("aria-selected",b.dataset.sec===section()));
+  const mc=$("#mechip"); mc.hidden=!joined; mc.innerHTML="";
+  if(joined){mc.appendChild(pf(me.face,myStatus(),false,"me"));mc.appendChild(el("span","n",me.name))}
+  chips($("#statuses"),[["online","Online"],["away","Away"],["offline","Appear offline"]],me.pick,v=>{me.pick=v;save("bb.status",v);autoAway=false;changed()});
+  $("#modehint").textContent=me.mode==="default"
+    ?"Default: you're in Ping, PingPals' own group chat."
+    :me.mode==="translation"?"Translator: pick your app. The Bridge Bot connects everyone, on every app."
+    :me.mode==="games"?"Games: pick something to play while your friends are away."
+    :me.mode==="afk"?"AFK Game: roast RoastBot 3000 before time runs out. Your friends see you as away."
+    :me.mode==="rpg"?"RPG: play Demon Conqueror. Your friends see that you're in the game."
+    :me.mode==="animate"?"Animate Image: drop in a picture and turn it into a GIF you can download."
+    :"Watch a video: find something on YouTube. Your friends see you're watching.";
+  const list=$("#here"); list.innerHTML="";
+  const seen=new Set(), rows=[];
+  visiblePeers().forEach(p=>{const key=p.by||p.peer; if(seen.has(key)) return; seen.add(key); rows.push(p)});
+  $("#herelbl").textContent=GAME_MODES.includes(me.mode)?`Friends in the chat (${rows.length})`:`Here now in this chat (${rows.length})`;
+  if(!rows.length){const s=document.createElement("p");s.className="hint";s.textContent=room?"Nobody else yet. Share the page so friends can join.":"You'll see who's here once the chat connects.";list.appendChild(s)}
+  rows.forEach(p=>{
+    const r=document.createElement("div"); r.className="who-row";
+    r.appendChild(pf(p.presence.face,p.presence.status||"online",false,p.by));
+    const t=document.createElement("div");
+    t.textContent=(p.presence.name||"Someone")+(p.isMe?" (you)":"");
+    const sm=document.createElement("small"); sm.textContent=p.presence.mode==="afk"?" · playing AFK Game 🤖":p.presence.mode==="rpg"?" · playing Demon Conqueror ⚔️":p.presence.mode==="animate"?" · animating an image 🎨":p.presence.mode==="video"?" · watching a video 📺":p.presence.mode==="games"?" · looking at games 🎮":p.presence.mode==="default"?` in Ping · ${STATUS_WORD[p.presence.status||"online"]}`:` on ${APPS[p.presence.app]?.name||"?"} · ${STATUS_WORD[p.presence.status||"online"]}`;
+    t.appendChild(sm); r.appendChild(t); list.appendChild(r);
+  });
+}
+
+function renderPhone(){
+  const ph=$("#phone"); const sec=section();
+  ph.className="phone "+(sec==="translation"?APPS[me.app].cls:sec==="games"?"arcade":"ping");
+  $("#back").hidden=!(sec==="games"&&me.mode!=="games");
+  const mp=$("#mypf"); mp.innerHTML=""; mp.appendChild(pf(me.face,myStatus(),false,"me"));
+  const t=$("#title");
+  $("#gamebar").hidden=me.mode!=="afk";
+  if(me.mode==="games"){
+    t.textContent="Games 🎮";
+    const s6=document.createElement("small"); s6.textContent="Pick something to play"; t.appendChild(s6);
+    $("#msg").placeholder="Pick a game to start"; $("#send").disabled=true;
+    renderGameMenu(); const ty=$("#typing"); ty.innerHTML=""; ty.setAttribute("data-empty",""); return;
+  }
+  if(me.mode==="video"){
+    t.textContent="Watch a Video 📺";
+    const s5=document.createElement("small"); s5.textContent="Opens on YouTube"; t.appendChild(s5);
+    $("#msg").placeholder="Chat is paused while you watch"; $("#send").disabled=true;
+    const feed=$("#feed"); if(vid.panel.parentNode!==feed){feed.innerHTML="";feed.appendChild(vid.panel)}
+    const ty=$("#typing"); ty.innerHTML=""; ty.setAttribute("data-empty",""); return;
+  }
+  if(me.mode==="animate"){
+    t.textContent="Animate Image 🎨";
+    const s4=document.createElement("small"); s4.textContent="Turn any picture into a GIF"; t.appendChild(s4);
+    $("#msg").placeholder="Chat is paused while you animate"; $("#send").disabled=true;
+    const feed=$("#feed"); if(anim.panel.parentNode!==feed){feed.innerHTML="";feed.appendChild(anim.panel)}
+    if(anim.img&&!anim.ui.cv.hidden&&!anim.running) startPreview();
+    const ty=$("#typing"); ty.innerHTML=""; ty.setAttribute("data-empty",""); return;
+  }
+  if(me.mode==="rpg"){
+    t.textContent="Demon Conqueror ⚔️";
+    const s3=document.createElement("small"); s3.textContent="RPG mode · opens in a new tab"; t.appendChild(s3);
+    $("#msg").placeholder="Chat is paused in RPG mode"; $("#send").disabled=true;
+    renderRpg(); const ty=$("#typing"); ty.innerHTML=""; ty.setAttribute("data-empty",""); return;
+  }
+  if(me.mode==="afk"){
+    t.textContent="RoastBot 3000 🤖";
+    const s2=document.createElement("small"); s2.textContent="AFK Game · Roast it or lose"; t.appendChild(s2);
+    $("#msg").placeholder=game.on?"Type your roast…":"Tap Start to play";
+    $("#send").disabled=!game.on||game.busy;
+    renderGame(); renderTyping(); return;
+  }
+  t.textContent=me.mode==="translation"?"Bridged Group 🌉":"Ping 💬";
+  const sm=document.createElement("small");
+  const n=new Set(visiblePeers().filter(p=>(p.presence.status||"online")==="online").map(p=>p.by||p.peer)).size;
+  sm.textContent=(me.mode==="translation"?`You're on ${APPS[me.app].name} · Bridge Bot on`:"PingPals group chat")+` · ${n} online`;
+  t.appendChild(sm);
+  $("#msg").placeholder=`Message as ${me.name}`;
+  $("#send").disabled=!db||!me.name.trim();
+  renderFeed(); renderTyping();
+}
+
+function renderFeed(){
+  const feed=$("#feed"); feed.innerHTML="";
+  const list=messages.filter(m=>me.mode==="translation"?m.mode==="translation":(m.mode==="default"&&m.app==="ping"));
+  if(!list.length){
+    const s=document.createElement("div"); s.className="sys";
+    s.textContent=!db?"Sign in to Claude to see and send messages.":"No messages here yet. Say hi! 👋";
+    feed.appendChild(s);
+  }
+  if(!visiblePeers().some(p=>!p.isMe&&(p.presence.status||"online")==="online")){
+    const b=document.createElement("button"); b.type="button"; b.className="afk-invite";
+    b.textContent="Nobody's online. Play a game 🎮"; b.onclick=()=>setMode("games");
+    feed.appendChild(b);
+  }
+  list.forEach(m=>{
+    const mine=myId&&m.uid===myId;
+    const row=document.createElement("div"); row.className="row"+(mine?" mine":"");
+    const body=document.createElement("div"); body.className="body";
+    const who=document.createElement("span"); who.className="whon"; who.textContent=String(m.name||"Someone");
+    if(me.mode==="translation"&&m.app!==me.app&&APPS[m.app]){const v=document.createElement("span");v.className="via";v.textContent="via "+APPS[m.app].name;who.appendChild(v)}
+    body.append(who,document.createTextNode(String(m.text||"")));
+    row.append(pf(m.face,statusOf(m.uid),true,m.uid),body); feed.appendChild(row);
+  });
+  feed.scrollTop=feed.scrollHeight;
+}
+
+function renderTyping(){
+  const el=$("#typing"); el.innerHTML="";
+  if(me.mode==="afk"){
+    if(!game.busy){el.setAttribute("data-empty","");return}
+    el.removeAttribute("data-empty");
+    const d=document.createElement("span"); d.className="tdots"; d.innerHTML="<i></i><i></i><i></i>";
+    const s=document.createElement("span"); s.textContent="RoastBot is cooking up a comeback";
+    el.append(pf("🤖","online",true),d,s); return;
+  }
+  const who=visiblePeers().filter(p=>!p.isMe&&p.presence.typing);
+  if(!who.length){el.setAttribute("data-empty","");return}
+  el.removeAttribute("data-empty");
+  const names=[...new Set(who.map(p=>p.presence.name))];
+  const d=document.createElement("span"); d.className="tdots"; d.innerHTML="<i></i><i></i><i></i>";
+  let txt=names.length===1?`${names[0]} is typing`:names.length===2?`${names.join(" and ")} are typing`:"Several people are typing";
+  if(me.mode==="translation"&&who.length===1&&APPS[who[0].presence.app]) txt+=` on ${APPS[who[0].presence.app].name}`;
+  const s=document.createElement("span"); s.textContent=txt;
+  el.append(pf(who[0].presence.face,who[0].presence.status||"online",true,who[0].by),d,s);
+}
+
+function pushPresence(){
+  if(!room||!me.name) return;
+  room.presence({name:me.name.trim().slice(0,20),face:me.face,app:me.app,mode:me.mode,status:myStatus(),typing:typingNow&&me.pick!=="offline"}).catch(()=>{});
+}
+function changed(){pushPresence();renderSide();renderPhone()}
+
+function activity(){
+  lastActive=Date.now();
+  if(autoAway){autoAway=false;changed()}
+}
+setInterval(()=>{
+  const idle=Date.now()-lastActive>30000||document.hidden;
+  if(idle&&!autoAway&&me.pick==="online"){autoAway=true;changed()}
+},3000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden) activity(); else if(me.pick==="online"){autoAway=true;changed()}});
+["pointerdown","keydown"].forEach(e=>document.addEventListener(e,activity,{passive:true}));
+
+function nameTaken(n){
+  const l=n.toLowerCase();
+  const inRoom=peers.some(p=>!p.isMe&&p.presence&&String(p.presence.name||"").toLowerCase()===l&&(!myId||p.by!==myId));
+  const inChat=messages.some(m=>String(m.name||"").toLowerCase()===l&&myId&&m.uid!==myId);
+  return inRoom||inChat;
+}
+$("#welcome").addEventListener("submit",e=>{
+  e.preventDefault();
+  const n=$("#uname").value.trim(), err=$("#uerr");
+  if(n.length<3){err.textContent="Usernames need at least 3 characters.";return}
+  if(!/^[A-Za-z0-9_]+$/.test(n)){err.textContent="Use only letters, numbers, and underscores ( _ ).";return}
+  if(nameTaken(n)){err.textContent="Someone already has that username. Try adding a number.";return}
+  err.textContent=""; me.name=n; save("bb.name",n); activity(); changed();
+});
+$("#uname").addEventListener("input",()=>{$("#uerr").textContent=""});
+$("#change").addEventListener("click",()=>{
+  $("#uname").value=me.name; me.name=""; save("bb.name",""); typingNow=false;
+  if(room) room.presence({name:null,typing:false}).catch(()=>{});
+  renderSide(); renderPhone(); $("#uname").focus();
+});
+$("#msg").addEventListener("input",e=>{
+  if(GAME_MODES.includes(me.mode)) return;
+  const now=!!e.target.value.trim();
+  clearTimeout(typingTimer);
+  if(now) typingTimer=setTimeout(()=>{typingNow=false;pushPresence()},4000);
+  if(now!==typingNow){typingNow=now;pushPresence()}
+});
+$("#compose").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const input=$("#msg"), text=input.value.trim();
+  if(me.mode!=="afk"&&GAME_MODES.includes(me.mode)) return;
+  if(me.mode==="afk"){ if(text&&game.on&&!game.busy){input.value="";playerRoast(text)} return; }
+  if(!text||!db||!me.name.trim()) return;
+  input.value=""; typingNow=false; clearTimeout(typingTimer); pushPresence();
+  try{
+    await db.collection("messages").add({uid:myId,name:me.name.trim().slice(0,20),face:me.face,app:me.mode==="default"?"ping":me.app,mode:me.mode,text:text.slice(0,500),ts:Date.now()});
+  }catch(err){
+    input.value=text;
+    const c=$("#conn");
+    c.textContent=err&&err.code==="quota_exceeded"?"The chat is full. Ask the page owner to clear old messages.":"Your message didn't send. You may need the owner to give you Contributor access in the Share menu.";
+    c.hidden=false;
+  }
+});
+
+// ---------- Animate Image: picture to GIF ----------
+const anim={img:null,speed:"normal",bg:"#ffffff",frames:30,raf:0,running:false,gifUrl:null,gifBlob:null,panel:null,
+  recipe:{motion:"none",warps:[{type:"wave",amount:.7}],color:"none",overlay:"sparkles"},source:"starter"};
+const MOTIONS=["none","bounce","wiggle","spin","pulse","shake","float"];
+const WARPS=["melt","wave","ripple","jelly","swirl","glitch","scroll","heat"];
+const COLORS=["none","rainbow","flash"];
+const OVERLAYS=["none","snow","rain","sparkles","hearts","fire","confetti"];
+const PRESETS=[
+  ["🫠 Melt",{motion:"none",warps:[{type:"melt",amount:1}],color:"none",overlay:"none"}],
+  ["🌊 Wave",{motion:"none",warps:[{type:"wave",amount:.8}],color:"none",overlay:"none"}],
+  ["💧 Ripple",{motion:"none",warps:[{type:"ripple",amount:.8}],color:"none",overlay:"none"}],
+  ["🍮 Jelly",{motion:"none",warps:[{type:"jelly",amount:.9}],color:"none",overlay:"none"}],
+  ["🌀 Swirl",{motion:"none",warps:[{type:"swirl",amount:.9}],color:"none",overlay:"none"}],
+  ["👾 Glitch",{motion:"none",warps:[{type:"glitch",amount:.9}],color:"none",overlay:"none"}],
+  ["➡️ Scroll",{motion:"none",warps:[{type:"scroll",amount:1}],color:"none",overlay:"none"}],
+  ["🔥 Fire",{motion:"none",warps:[{type:"heat",amount:.9}],color:"none",overlay:"fire"}],
+  ["❄️ Snow",{motion:"none",warps:[],color:"none",overlay:"snow"}],
+  ["✨ Sparkle",{motion:"none",warps:[],color:"none",overlay:"sparkles"}],
+  ["🌈 Rainbow",{motion:"none",warps:[{type:"wave",amount:.4}],color:"rainbow",overlay:"none"}],
+  ["⬆️ Bounce",{motion:"bounce",warps:[],color:"none",overlay:"none"}],
+  ["🔄 Spin",{motion:"spin",warps:[],color:"none",overlay:"none"}],
+  ["🎉 Party",{motion:"wiggle",warps:[],color:"rainbow",overlay:"confetti"}]
+];
+const SPEEDS={slow:8,normal:5,fast:3};
+const BGS=[["#ffffff","White"],["#111111","Black"],["#7cc142","Lime"],["#fffc00","Yellow"],["#5865f2","Blurple"]];
+const NICE={none:"",bounce:"bounce",wiggle:"wiggle",spin:"spin",pulse:"pulse",shake:"shake",float:"float",melt:"melt",wave:"wave",ripple:"ripple",jelly:"jelly",swirl:"swirl",glitch:"glitch",scroll:"scroll",heat:"heat shimmer",rainbow:"rainbow colors",flash:"flashing",snow:"snow",rain:"rain",sparkles:"sparkles",hearts:"floating hearts",fire:"fire embers",confetti:"confetti"};
+function el(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e}
+function recipeText(r){const parts=[NICE[r.motion],...r.warps.map(w=>NICE[w.type]),NICE[r.color],NICE[r.overlay]].filter(Boolean);return parts.length?parts.join(" + "):"no effect"}
+
+function buildAnim(){
+  const P=el("div","anim");
+  const drop=el("div","drop"); drop.tabIndex=0; drop.setAttribute("role","button");
+  drop.append(el("div","big","🖼️"),el("b",null,"Drag an image here"),el("small",null,"or tap to choose one (PNG, JPG, GIF, WebP)"));
+  const file=document.createElement("input"); file.type="file"; file.accept="image/*"; file.id="animfile"; file.hidden=true;
+  const cv=document.createElement("canvas"); cv.hidden=true; cv.setAttribute("aria-label","Animation preview");
+  const out=document.createElement("img"); out.className="out"; out.alt="Your animated GIF"; out.hidden=true;
+  const desc=el("div","opts"); desc.hidden=true;
+  const dl=el("label","lab","Describe your animation"); dl.htmlFor="animdesc";
+  const ta=document.createElement("textarea"); ta.id="animdesc"; ta.rows=2; ta.maxLength=200; ta.className="desc";
+  ta.placeholder="like: make it melt like ice cream with sparkles";
+  const go=el("button","describe","✨ Animate it"); go.type="button";
+  const used=el("p","msg2 used","");
+  desc.append(dl,ta,go,used);
+  const opts=el("div","opts"); opts.hidden=true;
+  const pwrap=el("div"); pwrap.appendChild(el("div","lab","Or tap a quick pick"));
+  const prow=el("div","chips");
+  PRESETS.forEach(([label,r])=>{const b=el("button",null,label);b.type="button";b.onclick=()=>{setRecipe(JSON.parse(JSON.stringify(r)),"pick");[...prow.children].forEach(c=>c.setAttribute("aria-pressed",c===b))};prow.appendChild(b)});
+  pwrap.appendChild(prow);
+  function chipRow(label,items,key){
+    const wrap=el("div"); wrap.appendChild(el("div","lab",label));
+    const row=el("div","chips");
+    items.forEach(([v,l])=>{const b=el("button",null,l);b.type="button";b.setAttribute("aria-pressed",anim[key]===v);
+      b.onclick=()=>{anim[key]=v;[...row.children].forEach(c=>c.setAttribute("aria-pressed",c===b));resetOut()};row.appendChild(b)});
+    wrap.appendChild(row); return wrap;
+  }
+  opts.append(pwrap,chipRow("Speed",[["slow","Slow"],["normal","Normal"],["fast","Fast"]],"speed"),chipRow("Background",BGS,"bg"));
+  const acts=el("div","acts"); acts.hidden=true;
+  const make=el("button",null,"🎞️ Make GIF"); make.type="button";
+  const save=el("button",null,"⬇ Download GIF"); save.type="button"; save.hidden=true;
+  const again=el("button","alt","New image"); again.type="button";
+  acts.append(make,save,again);
+  const note=el("p","msg2","");
+  P.append(drop,file,cv,out,desc,acts,note,opts);
+  anim.ui={drop,file,cv,out,desc,ta,go,used,opts,prow,acts,make,save,again,note};
+
+  drop.onclick=()=>file.click();
+  drop.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();file.click()}};
+  ["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over")}));
+  ["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,()=>drop.classList.remove("over")));
+  drop.addEventListener("drop",e=>{e.preventDefault();const f=[...(e.dataTransfer?.files||[])].find(f=>f.type.startsWith("image/"));f?loadImage(f):note.textContent="That wasn't an image. Try a PNG or JPG."});
+  file.onchange=()=>{if(file.files[0]) loadImage(file.files[0]); file.value=""};
+  document.addEventListener("paste",e=>{if(me.mode!=="animate")return;const f=[...(e.clipboardData?.files||[])].find(f=>f.type.startsWith("image/"));if(f)loadImage(f)});
+  go.onclick=describeAnim;
+  ta.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();describeAnim()}});
+  make.onclick=makeGif; save.onclick=saveGif;
+  again.onclick=()=>{anim.img=null;cancelAnimationFrame(anim.raf);anim.running=false;resetOut();cv.hidden=true;desc.hidden=true;opts.hidden=true;acts.hidden=true;drop.hidden=false;note.textContent=""};
+  showUsed();
+  return P;
+}
+function showUsed(){
+  const u=anim.ui; if(!u) return;
+  const by=anim.source==="ai"?" (picked by AI from your description)":anim.source==="words"?" (picked from your words)":"";
+  u.used.textContent=`Now playing: ${recipeText(anim.recipe)}${by}`;
+}
+function setRecipe(r,source){anim.recipe=r;anim.source=source;showUsed();resetOut()}
+function resetOut(){const u=anim.ui;if(!u)return;if(anim.gifUrl){URL.revokeObjectURL(anim.gifUrl);anim.gifUrl=null;anim.gifBlob=null}u.out.hidden=true;u.save.hidden=true;if(anim.img){u.cv.hidden=false;if(!anim.running)startPreview()}}
+function loadImage(f){
+  const u=anim.ui; u.note.textContent="Loading…";
+  const url=URL.createObjectURL(f); const im=new Image();
+  im.onload=()=>{anim.img=im;
+    const max=240, k=Math.min(max/im.naturalWidth,max/im.naturalHeight,1);
+    anim.w=Math.max(40,Math.round(im.naturalWidth*k)); anim.h=Math.max(40,Math.round(im.naturalHeight*k));
+    u.cv.width=anim.w; u.cv.height=anim.h;
+    anim.base=document.createElement("canvas"); anim.base.width=anim.w; anim.base.height=anim.h;
+    anim.seed=Array.from({length:60},(_,i)=>[hash(i,1),hash(i,2),hash(i,3),hash(i,4)]);
+    u.drop.hidden=true; u.desc.hidden=false; u.opts.hidden=false; u.acts.hidden=false;
+    u.note.textContent="Describe how it should move, or tap a quick pick. Then tap Make GIF.";
+    resetOut(); u.cv.hidden=false; startPreview(); u.ta.focus();
+  };
+  im.onerror=()=>{u.note.textContent="Couldn't open that image. Try a different file."};
+  im.src=url;
+}
+function hash(a,b){let x=Math.sin(a*127.1+b*311.7)*43758.5453;return x-Math.floor(x)}
+function hexRgb(h){const n=parseInt(h.slice(1),16);return[(n>>16)&255,(n>>8)&255,n&255]}
+
+// --- the animation engine: motion, then whole image warps, then color, then overlays
+function warpFns(t,frame){
+  const w=anim.w,h=anim.h,TAU=Math.PI*2,cx=w/2,cy=h/2,R=Math.min(w,h)*.55;
+  return anim.recipe.warps.map(({type,amount})=>{
+    const a=Math.max(.1,Math.min(1,amount||.7));
+    switch(type){
+      case "melt":{const m=(1-Math.cos(TAU*t))/2*a;return(x,y)=>{
+        const drip=.35+.65*(.5+.5*Math.sin(x*.09+Math.sin(x*.031)*3));
+        return[x+Math.sin(y*.05+TAU*t)*m*3,y-m*h*.55*drip*Math.pow(y/h,.6)]}}
+      case "wave":return(x,y)=>[x+Math.sin(y/h*TAU*2+TAU*t)*w*.05*a,y+Math.sin(x/w*TAU*1.5+TAU*t)*h*.025*a];
+      case "ripple":return(x,y)=>{const dx=x-cx,dy=y-cy,d=Math.hypot(dx,dy)||1,r=Math.sin(d*.13-TAU*t*2)*7*a*(1-Math.min(1,d/(R*1.6)));return[x+dx/d*r,y+dy/d*r]};
+      case "jelly":{const s=Math.sin(TAU*t),kx=1+.09*a*s,ky=1-.09*a*s,sk=Math.sin(TAU*t+1.2)*w*.05*a;return(x,y)=>[cx+(x-cx)/kx+(h-y)/h*sk,h-(h-y)/ky]}
+      case "swirl":{const amt=a*1.6*Math.sin(TAU*t);return(x,y)=>{const dx=x-cx,dy=y-cy,d=Math.hypot(dx,dy);if(d>=R)return[x,y];const ang=amt*Math.pow(1-d/R,2),c=Math.cos(ang),s=Math.sin(ang);return[cx+dx*c-dy*s,cy+dx*s+dy*c]}}
+      case "glitch":{const on=hash(frame,9)<.55;if(!on)return(x,y)=>[x,y];const band=Math.max(4,Math.round(h/14));return(x,y)=>{const b=Math.floor(y/band),r=hash(frame*31+b,7);return[r<.35?x+(hash(frame,b)-.5)*w*.25*a:x,y]}}
+      case "scroll":return(x,y)=>[((x+t*w)%w+w)%w,y];
+      case "heat":return(x,y)=>[x+Math.sin(y*.15+TAU*t*3)*2.6*a*(.3+y/h),y+Math.sin(x*.1+TAU*t*2)*1.6*a];
+      default:return(x,y)=>[x,y];
+    }
+  });
+}
+function drawFrame(ctx,t,frame){
+  const w=anim.w,h=anim.h,im=anim.img,TAU=Math.PI*2,r=anim.recipe;
+  const b=anim.base.getContext("2d",{willReadFrequently:true});
+  b.save(); b.fillStyle=anim.bg; b.fillRect(0,0,w,h);
+  let dx=0,dy=0,rot=0,sx=1,sy=1;
+  if(r.motion!=="none"){sx=sy=.8}
+  switch(r.motion){
+    case "bounce":{const q=Math.abs(Math.sin(Math.PI*t));dy=-q*h*.12+h*.05;if(q<.15){sx*=1.08;sy*=.9}break}
+    case "wiggle":rot=Math.sin(TAU*t)*.22;break;
+    case "spin":rot=TAU*t;sx=sy=.62;break;
+    case "pulse":{const k=1+.13*Math.sin(TAU*t);sx*=k;sy*=k;break}
+    case "shake":dx=Math.sin(TAU*t*4)*w*.04;dy=Math.cos(TAU*t*3)*h*.03;rot=Math.sin(TAU*t*4)*.04;break;
+    case "float":dy=Math.sin(TAU*t)*h*.06;rot=Math.sin(TAU*t+1)*.06;break;
+  }
+  b.translate(w/2+dx,h/2+dy); b.rotate(rot); b.scale(sx,sy); b.drawImage(im,-w/2,-h/2,w,h); b.restore();
+  const fns=warpFns(t,frame);
+  if(fns.length){
+    const src=b.getImageData(0,0,w,h).data, out=ctx.createImageData(w,h), o=out.data, bg=hexRgb(anim.bg);
+    const split=r.warps.some(x=>x.type==="glitch")&&hash(frame,9)<.55?Math.round(3*(r.warps.find(x=>x.type==="glitch").amount||.8))+1:0;
+    for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+      let p=[x,y]; for(let i=fns.length-1;i>=0;i--) p=fns[i](p[0],p[1]);
+      const X=Math.round(p[0]),Y=Math.round(p[1]),k=(y*w+x)*4;
+      if(X<0||Y<0||X>=w||Y>=h){
+        if(Y<0&&X>=0&&X<w){const s=X*4;o[k]=src[s];o[k+1]=src[s+1];o[k+2]=src[s+2];o[k+3]=255}
+        else{o[k]=bg[0];o[k+1]=bg[1];o[k+2]=bg[2];o[k+3]=255}
+        continue;
+      }
+      const s=(Y*w+X)*4;
+      if(split){const sr=(Y*w+Math.min(w-1,X+split))*4,sb=(Y*w+Math.max(0,X-split))*4;o[k]=src[sr];o[k+1]=src[s+1];o[k+2]=src[sb+2]}
+      else{o[k]=src[s];o[k+1]=src[s+1];o[k+2]=src[s+2]}
+      o[k+3]=255;
+    }
+    ctx.putImageData(out,0,0);
+  }else{ctx.drawImage(anim.base,0,0)}
+  ctx.save();
+  if(r.color==="rainbow"){ctx.globalCompositeOperation="color";ctx.fillStyle=`hsla(${Math.round(t*360)},90%,55%,.55)`;ctx.fillRect(0,0,w,h)}
+  if(r.color==="flash"){const f=Math.max(0,Math.sin(TAU*t*2));ctx.globalCompositeOperation="screen";ctx.fillStyle=`rgba(255,255,255,${(f*.45).toFixed(3)})`;ctx.fillRect(0,0,w,h)}
+  ctx.restore();
+  drawOverlay(ctx,t);
+}
+function drawOverlay(ctx,t){
+  const w=anim.w,h=anim.h,TAU=Math.PI*2,S=anim.seed,kind=anim.recipe.overlay;
+  if(kind==="none") return;
+  ctx.save();
+  if(kind==="snow"){ctx.fillStyle="rgba(255,255,255,.95)";S.slice(0,45).forEach(([a,b,c,d],i)=>{const y=((b+t)%1)*h,x=a*w+Math.sin(TAU*(t+d))*5;ctx.beginPath();ctx.arc(x,y,1.2+c*2.2,0,TAU);ctx.fill()})}
+  if(kind==="rain"){ctx.strokeStyle="rgba(170,200,255,.8)";ctx.lineWidth=1.3;S.slice(0,50).forEach(([a,b,c])=>{const y=((b+t*2)%1)*h,x=a*w;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-2,y+8+c*6);ctx.stroke()})}
+  if(kind==="sparkles"){S.slice(0,18).forEach(([a,b,c,d])=>{const s=Math.max(0,Math.sin(TAU*(t+d)))*(4+c*6);if(s<.5)return;const x=a*w,y=b*h;ctx.fillStyle="rgba(255,250,200,.95)";ctx.beginPath();ctx.moveTo(x,y-s);ctx.quadraticCurveTo(x,y,x+s,y);ctx.quadraticCurveTo(x,y,x,y+s);ctx.quadraticCurveTo(x,y,x-s,y);ctx.quadraticCurveTo(x,y,x,y-s);ctx.fill()})}
+  if(kind==="hearts"){ctx.textAlign="center";S.slice(0,14).forEach(([a,b,c,d])=>{const y=h-((b+t)%1)*(h+20)+10,x=a*w+Math.sin(TAU*(t+d))*8;ctx.globalAlpha=.85;ctx.fillStyle=c>.5?"#ff4d7d":"#ff8fb1";ctx.font=`${12+c*12}px sans-serif`;ctx.fillText("♥",x,y)})}
+  if(kind==="fire"){const g=ctx.createLinearGradient(0,h,0,h*.55);g.addColorStop(0,`rgba(255,90,0,${.55+.15*Math.sin(TAU*t*3)})`);g.addColorStop(1,"rgba(255,160,0,0)");ctx.fillStyle=g;ctx.fillRect(0,h*.55,w,h*.45);
+    S.slice(0,30).forEach(([a,b,c,d])=>{const p=(b+t*2)%1,y=h-p*h*.8,x=a*w+Math.sin(TAU*(t*2+d))*6;ctx.globalAlpha=1-p;ctx.fillStyle=c>.5?"#ffd23f":"#ff6a00";ctx.beginPath();ctx.arc(x,y,1.5+c*2.5,0,TAU);ctx.fill()})}
+  if(kind==="confetti"){const cols=["#f23c57","#ffd23f","#2fa84f","#5865f2","#0eadff","#ff8a3d"];S.slice(0,40).forEach(([a,b,c,d],i)=>{const y=((b+t)%1)*h,x=a*w+Math.sin(TAU*(t+d))*6;ctx.save();ctx.translate(x,y);ctx.rotate(TAU*(t*2+d));ctx.fillStyle=cols[i%6];ctx.fillRect(-3,-1.5,6,3);ctx.restore()})}
+  ctx.restore();
+}
+function startPreview(){
+  cancelAnimationFrame(anim.raf);
+  const ctx=anim.ui.cv.getContext("2d"); const start=performance.now();
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const loop=now=>{
+    if(!anim.img){anim.running=false;return}
+    const dur=anim.frames*SPEEDS[anim.speed]*10, t=reduce?.25:((now-start)%dur)/dur;
+    drawFrame(ctx,t,Math.floor(t*anim.frames));
+    if(!reduce&&me.mode==="animate"&&!anim.ui.cv.hidden) anim.raf=requestAnimationFrame(loop); else anim.running=false;
+  };
+  anim.running=true; anim.raf=requestAnimationFrame(loop);
+}
+
+// --- turning a description into an animation recipe
+const WORDS=[
+  [/melt|drip|ice ?cream|lava|liquid|goo|slime/,"warp","melt"],[/wave|water|flag|ocean|sea|underwater|wavy/,"warp","wave"],
+  [/ripple|pond|puddle|drop/,"warp","ripple"],[/jell|wobbl|jiggl|squish|bouncy/,"warp","jelly"],
+  [/swirl|spiral|twist|vortex|portal|tornado|dizzy/,"warp","swirl"],[/glitch|hack|broken|static|error|matrix/,"warp","glitch"],
+  [/scroll|slide|running|train|move (left|right)|loop/,"warp","scroll"],[/heat|hot|shimmer|desert|mirage|burn|fire|flame/,"warp","heat"],
+  [/snow|winter|cold|frozen|christmas/,"overlay","snow"],[/\brain(?!bow)|storm|\bsad\b|cry/,"overlay","rain"],
+  [/sparkl|magic|glitter|star|shine|shiny|twinkl/,"overlay","sparkles"],[/love|heart|cute|valentine/,"overlay","hearts"],
+  [/fire|flame|burn|lava|explod/,"overlay","fire"],[/party|confetti|birthday|celebrat|win/,"overlay","confetti"],
+  [/rainbow|colou?r|disco|party|neon/,"color","rainbow"],[/flash|strobe|lightning|thunder|blink/,"color","flash"],
+  [/bounc|jump|hop/,"motion","bounce"],[/spin|rotat|turn around|roll/,"motion","spin"],[/shak|scared|earthquake|angry|vibrat/,"motion","shake"],
+  [/float|ghost|fly|flying|hover|space/,"motion","float"],[/zoom|pulse|beat|heartbeat|breath/,"motion","pulse"],[/wiggl|dance|danc/,"motion","wiggle"]
+];
+function wordsRecipe(text){
+  const t=text.toLowerCase(), r={motion:"none",warps:[],color:"none",overlay:"none"};
+  WORDS.forEach(([re,kind,val])=>{if(!re.test(t))return;
+    if(kind==="warp"&&r.warps.length<2&&!r.warps.some(w=>w.type===val)) r.warps.push({type:val,amount:/super|really|very|crazy|extreme|a lot/.test(t)?1:.8});
+    if(kind==="overlay"&&r.overlay==="none") r.overlay=val;
+    if(kind==="color"&&r.color==="none") r.color=val;
+    if(kind==="motion"&&r.motion==="none") r.motion=val;
+  });
+  if(!r.warps.length&&r.motion==="none"&&r.color==="none"&&r.overlay==="none"){r.warps.push({type:"wave",amount:.7});r.overlay="sparkles"}
+  return r;
+}
+function cleanRecipe(x){
+  if(!x||typeof x!=="object") return null;
+  const r={motion:MOTIONS.includes(x.motion)?x.motion:"none",color:COLORS.includes(x.color)?x.color:"none",overlay:OVERLAYS.includes(x.overlay)?x.overlay:"none",
+    warps:(Array.isArray(x.warps)?x.warps:[]).filter(w=>w&&WARPS.includes(w.type)).slice(0,2).map(w=>({type:w.type,amount:Math.max(.2,Math.min(1,Number(w.amount)||.7))}))};
+  if(x.speed&&SPEEDS[x.speed]) r.speed=x.speed;
+  return r;
+}
+let animSample=null, animSampleTried=false;
+async function describeAnim(){
+  const u=anim.ui, text=u.ta.value.trim();
+  if(!text){u.used.textContent="Type what you want, like: melt like ice cream with sparkles.";u.ta.focus();return}
+  u.go.disabled=true; u.go.textContent="Thinking…";
+  if(!animSampleTried&&window.claude&&claude.use){animSampleTried=true;try{animSample=await claude.use("sample")}catch(e){animSample=null}}
+  let r=null, src="words";
+  if(animSample){
+    const prompt=`You turn a kid's description of a GIF animation into settings for an animation engine. The whole picture animates.
+Allowed settings:
+motion: one of ${MOTIONS.join(", ")} (moves the picture as a whole; use "none" unless the description asks for it)
+warps: up to 2 items, each {"type": one of ${WARPS.join(", ")}, "amount": 0.2 to 1}. melt = drips down like melting; wave = wavy like a flag or water; ripple = rings like a pond; jelly = squishy wobble; swirl = twists like a portal; glitch = broken screen; scroll = slides sideways forever; heat = shimmer like hot air.
+color: one of ${COLORS.join(", ")}
+overlay: one of ${OVERLAYS.join(", ")}
+speed: one of slow, normal, fast
+Description: ${JSON.stringify(text.slice(0,200))}
+Reply with only JSON: {"motion":"...","warps":[{"type":"...","amount":0.8}],"color":"...","overlay":"...","speed":"..."}`;
+    try{r=cleanRecipe(await animSample.json(prompt,{modelTier:"quick"}));if(r)src="ai"}
+    catch(e){if(e&&e.code==="not_granted")animSample=null}
+  }
+  if(!r) r=wordsRecipe(text);
+  if(r.speed){anim.speed=r.speed;delete r.speed;[...u.opts.querySelectorAll(".chips")][1]?.querySelectorAll("button").forEach((b,i)=>b.setAttribute("aria-pressed",["slow","normal","fast"][i]===anim.speed))}
+  [...u.prow.children].forEach(c=>c.setAttribute("aria-pressed","false"));
+  setRecipe(r,src);
+  u.go.disabled=false; u.go.textContent="✨ Animate it";
+}
+// tiny GIF89a encoder: fixed 252 color palette, ordered dither, LZW
+const BAYER=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+function palette(){const p=new Uint8Array(768);let i=0;for(let r=0;r<6;r++)for(let g=0;g<7;g++)for(let b=0;b<6;b++){p[i*3]=Math.round(r*51);p[i*3+1]=Math.round(g*42.5);p[i*3+2]=Math.round(b*51);i++}return p}
+function quantize(data,w,h){
+  const out=new Uint8Array(w*h);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const i=y*w+x, d=(BAYER[(y&3)*4+(x&3)]/16-.5);
+    const r=Math.min(5,Math.max(0,Math.round(data[i*4]/51+d)));
+    const g=Math.min(6,Math.max(0,Math.round(data[i*4+1]/42.5+d)));
+    const b=Math.min(5,Math.max(0,Math.round(data[i*4+2]/51+d)));
+    out[i]=r*42+g*6+b;
+  }
+  return out;
+}
+function lzw(ix,bytes){
+  const MIN=8,CLEAR=256,EOI=257; let size=MIN+1,next=EOI+1,dict=new Map(),cur=0,bits=0,buf=[];
+  const emit=c=>{cur|=c<<bits;bits+=size;while(bits>=8){buf.push(cur&255);cur>>>=8;bits-=8}};
+  emit(CLEAR); let prefix=ix[0];
+  for(let i=1;i<ix.length;i++){
+    const k=ix[i], key=prefix*256+k, hit=dict.get(key);
+    if(hit!==undefined){prefix=hit;continue}
+    emit(prefix);
+    if(next===4096){emit(CLEAR);dict.clear();next=EOI+1;size=MIN+1}
+    else{if(next>=(1<<size))size++;dict.set(key,next++)}
+    prefix=k;
+  }
+  emit(prefix); emit(EOI); if(bits>0) buf.push(cur&255);
+  bytes.push(MIN);
+  for(let i=0;i<buf.length;i+=255){const n=Math.min(255,buf.length-i);bytes.push(n);for(let j=0;j<n;j++)bytes.push(buf[i+j])}
+  bytes.push(0);
+}
+function encodeGif(frames,w,h,delay){
+  const b=[], u16=v=>{b.push(v&255,(v>>8)&255)};
+  "GIF89a".split("").forEach(c=>b.push(c.charCodeAt(0)));
+  u16(w);u16(h);b.push(0xF7,0,0);
+  const pal=palette(); for(let i=0;i<768;i++) b.push(pal[i]);
+  b.push(0x21,0xFF,0x0B);"NETSCAPE2.0".split("").forEach(c=>b.push(c.charCodeAt(0)));b.push(3,1,0,0,0);
+  frames.forEach(ix=>{b.push(0x21,0xF9,4,0);u16(delay);b.push(0,0);b.push(0x2C);u16(0);u16(0);u16(w);u16(h);b.push(0);lzw(ix,b)});
+  b.push(0x3B);
+  return new Blob([new Uint8Array(b)],{type:"image/gif"});
+}
+async function makeGif(){
+  const u=anim.ui; if(!anim.img) return;
+  u.make.disabled=true; u.note.textContent="Making your GIF…";
+  await new Promise(r=>setTimeout(r,30));
+  try{
+    const c=document.createElement("canvas"); c.width=anim.w; c.height=anim.h;
+    const ctx=c.getContext("2d",{willReadFrequently:true}); const frames=[];
+    for(let f=0;f<anim.frames;f++){
+      drawFrame(ctx,f/anim.frames,f);
+      frames.push(quantize(ctx.getImageData(0,0,anim.w,anim.h).data,anim.w,anim.h));
+      if(f%6===5){u.note.textContent=`Making your GIF… ${Math.round((f+1)/anim.frames*100)}%`;await new Promise(r=>setTimeout(r,0))}
+    }
+    const blob=encodeGif(frames,anim.w,anim.h,SPEEDS[anim.speed]);
+    resetOut(); anim.gifBlob=blob; anim.gifUrl=URL.createObjectURL(blob);
+    cancelAnimationFrame(anim.raf); anim.running=false; u.cv.hidden=true; u.out.src=anim.gifUrl; u.out.hidden=false;
+    u.save.hidden=false;
+    u.note.textContent=`Done! Your GIF is ${(blob.size/1024).toFixed(0)} KB. Tap Download GIF to save it.`;
+  }catch(e){u.note.textContent="Something went wrong making the GIF. Try a smaller image."}
+  u.make.disabled=false;
+}
+let downloadsNs=null, downloadsTried=false;
+async function saveGif(){
+  const u=anim.ui; if(!anim.gifBlob) return;
+  if(!downloadsTried&&window.claude&&claude.use){downloadsTried=true;try{downloadsNs=await claude.use("downloads")}catch(e){downloadsNs=null}}
+  if(!downloadsNs){const a=document.createElement("a");a.href=anim.gifUrl;a.download=`animated-${anim.recipe.warps[0]?.type||anim.recipe.motion||"gif"}.gif`;document.body.appendChild(a);a.click();a.remove();u.note.textContent="Saved! Check your downloads.";return}
+  try{await downloadsNs.save({filename:`animated-${anim.effect}.gif`,data:anim.gifBlob});u.note.textContent="Saved! Check your downloads."}
+  catch(e){u.note.textContent=e&&e.code==="declined"?"Download canceled.":"Couldn't download. Press and hold (or right click) the GIF and choose Save Image."}
+}
+anim.panel=buildAnim();
+
+// ---------- Custom icons ----------
+const icon={tab:"upload",pending:""};
+function renderIconPrev(){
+  const b=$("#iconbig"); b.innerHTML="";
+  const src=icon.pending||myAvatar;
+  if(src){const im=document.createElement("img");im.src=src;im.alt="Icon preview";b.appendChild(im)} else b.textContent=me.face;
+  $("#iconsave").disabled=!icon.pending;
+}
+function iconTabs(){
+  chips($("#icontabs"),[["upload","📁 Upload"],["gen","✨ Generate"]],icon.tab,v=>{icon.tab=v;iconTabs()});
+  $("#tab-upload").hidden=icon.tab!=="upload"; $("#tab-gen").hidden=icon.tab!=="gen";
+}
+function squareIcon(img){
+  const c=document.createElement("canvas"); c.width=c.height=96; const x=c.getContext("2d");
+  const w=img.naturalWidth||img.width, h=img.naturalHeight||img.height, s=Math.min(w,h);
+  x.fillStyle="#fff"; x.fillRect(0,0,96,96);
+  x.drawImage(img,(w-s)/2,(h-s)/2,s,s,0,0,96,96);
+  return c.toDataURL("image/jpeg",.85);
+}
+function iconFromFile(f){
+  if(!f||!f.type.startsWith("image/")){$("#iconnote").textContent="That wasn't an image. Try a PNG or JPG.";return}
+  const url=URL.createObjectURL(f), im=new Image();
+  im.onload=()=>{try{icon.pending=squareIcon(im);$("#iconnote").textContent="Looks good? Tap Use this icon.";renderIconPrev()}catch(e){$("#iconnote").textContent="Couldn't use that picture. Try another one."}URL.revokeObjectURL(url)};
+  im.onerror=()=>{$("#iconnote").textContent="Couldn't open that picture. Try another one."};
+  im.src=url;
+}
+let iconSample=null, iconSampleTried=false;
+async function generateIcon(){
+  const d=$("#icondesc").value.trim(), note=$("#iconnote"), btn=$("#icongen");
+  if(!d){note.textContent="Type what your icon should look like first.";return}
+  if(!iconSampleTried&&window.claude&&claude.use){iconSampleTried=true;try{iconSample=await claude.use("sample")}catch(e){iconSample=null}}
+  if(!iconSample){note.textContent="AI icon drawing only works in the online Claude version. Try uploading a picture instead.";return}
+  btn.disabled=true; btn.textContent="Drawing…"; note.textContent="Claude is drawing your icon…";
+  const prompt=`Draw a profile icon for a kids' chat app as a single SVG image. Description: ${JSON.stringify(d.slice(0,120))}.
+Rules: viewBox="0 0 100 100", width="100" height="100". Fill the whole square with a colorful background shape. Bold, simple, friendly cartoon style with clear shapes, centered subject. Kid friendly only: nothing scary, violent, or rude. No text or letters. Do not use <script>, <image>, <foreignObject>, external links, or fonts. Reply with only the SVG code, starting with <svg and ending with </svg>.`;
+  try{
+    const r=await iconSample(prompt,{modelTier:"default",cache:false});
+    let svg=(r.text||"").match(/<svg[\s\S]*<\/svg>/i)?.[0];
+    if(!svg) throw new Error("no svg");
+    svg=svg.replace(/<script[\s\S]*?<\/script>/gi,"").replace(/<foreignObject[\s\S]*?<\/foreignObject>/gi,"").replace(/\son\w+="[^"]*"/gi,"").replace(/(href|xlink:href)="(?!#)[^"]*"/gi,"");
+    if(!/xmlns=/.test(svg)) svg=svg.replace(/<svg/i,'<svg xmlns="http://www.w3.org/2000/svg"');
+    const im=new Image();
+    im.onload=()=>{try{icon.pending=squareIcon(im);note.textContent="Here's your icon! Tap Use this icon, or Generate again for a new one.";renderIconPrev()}catch(e){note.textContent="Couldn't finish that drawing. Try Generate again."}};
+    im.onerror=()=>{note.textContent="That drawing came out broken. Try Generate again."};
+    im.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+  }catch(e){
+    note.textContent=e&&e.code==="rate_limited"?"Too many tries in a row. Wait a minute and try again.":"Couldn't generate an icon right now. Try again or upload a picture.";
+  }
+  btn.disabled=false; btn.textContent="✨ Generate";
+}
+async function saveIcon(){
+  if(!icon.pending) return;
+  const note=$("#iconnote");
+  myAvatar=icon.pending; save("bb.avatar",myAvatar); icon.pending="";
+  renderIconPrev(); renderSide(); renderPhone();
+  if(db&&myId){try{await db.collection("avatars").doc(myId).set({img:myAvatar,ts:Date.now()});note.textContent="Saved! Everyone in the chat sees your new icon."}
+    catch(e){note.textContent="Your icon shows for you, but it didn't save for others. You may need Contributor access."}}
+  else note.textContent="Your icon is set on this device. Others see it once you're connected.";
+}
+async function clearIcon(){
+  icon.pending=""; myAvatar=""; save("bb.avatar","");
+  renderIconPrev(); renderSide(); renderPhone();
+  $("#iconnote").textContent="Back to your emoji icon.";
+  if(db&&myId){try{await db.collection("avatars").doc(myId).delete()}catch(e){}}
+}
+(function(){
+  const drop=$("#icondrop"), file=$("#iconfile");
+  drop.onclick=()=>file.click();
+  drop.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();file.click()}};
+  ["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over")}));
+  ["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,()=>drop.classList.remove("over")));
+  drop.addEventListener("drop",e=>{e.preventDefault();const f=[...(e.dataTransfer?.files||[])].find(f=>f.type.startsWith("image/"));
+    if(f) iconFromFile(f); else $("#iconnote").textContent="Pictures dragged from websites can't come in that way. Right click the picture, choose Copy image, then paste here."});
+  file.onchange=()=>{if(file.files[0]) iconFromFile(file.files[0]); file.value=""};
+  document.addEventListener("paste",e=>{if(!$("#iconbox").open||me.mode==="animate")return;const f=[...(e.clipboardData?.files||[])].find(f=>f.type.startsWith("image/"));if(f){e.preventDefault();iconFromFile(f)}});
+  $("#icongen").onclick=generateIcon;
+  $("#icondesc").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();generateIcon()}});
+  $("#iconsave").onclick=saveIcon; $("#iconclear").onclick=clearIcon;
+  $("#iconbox").addEventListener("toggle",renderIconPrev);
+  iconTabs(); renderIconPrev();
+})();
+
+// ---------- Watch a video ----------
+const vid={panel:null};
+function youtubeUrl(q){
+  q=q.trim(); if(!q) return "";
+  try{
+    const u=new URL(q.startsWith("http")?q:"https://"+q);
+    const host=u.hostname.replace(/^www\.|^m\./,"");
+    if(host==="youtube.com"||host==="youtu.be"||host==="music.youtube.com") return u.href;
+  }catch(e){}
+  return "https://www.youtube.com/results?search_query="+encodeURIComponent(q);
+}
+function buildVideo(){
+  const P=el("div","vid");
+  const scr=el("div","screen"); scr.appendChild(el("span",null,"▶"));
+  const lab=el("label",null,"Paste a YouTube link or type what to watch"); lab.htmlFor="vidq";
+  const inp=document.createElement("input"); inp.id="vidq"; inp.placeholder="like funny cat videos"; inp.autocomplete="off";
+  const go=el("a","go","▶ Watch a video"); go.target="_blank"; go.rel="noopener"; go.setAttribute("aria-disabled","true"); go.href="https://www.youtube.com/";
+  const note=el("p",null,"YouTube can't play inside this page, so your video opens in a new tab. The chat stays here, and message alerts still pop up when you come back.");
+  inp.addEventListener("input",()=>{const u=youtubeUrl(inp.value);go.href=u||"https://www.youtube.com/";go.setAttribute("aria-disabled",u?"false":"true");go.textContent=u&&u.includes("/results")?"🔍 Search YouTube":"▶ Watch a video"});
+  inp.addEventListener("keydown",e=>{if(e.key==="Enter"&&go.getAttribute("aria-disabled")==="false"){e.preventDefault();go.click()}});
+  P.append(scr,lab,inp,go,note); return P;
+}
+vid.panel=buildVideo();
+function renderGameMenu(){
+  const feed=$("#feed"); feed.innerHTML="";
+  const g=el("div","gmenu"); g.appendChild(el("h3","ghead","Pick a game"));
+  GAME_LIST.forEach(x=>{
+    const b=el("button","gtile"); b.type="button"; b.style.background=x.bg;
+    b.append(el("span","gi",x.icon),el("b",null,x.name),el("small",null,x.desc));
+    b.onclick=()=>setMode(x.id); g.appendChild(b);
+  });
+  feed.appendChild(g);
+}
+document.querySelectorAll("#switch button").forEach(b=>b.addEventListener("click",()=>{
+  const sec=b.dataset.sec; if(sec==="games"){ if(section()!=="games") setMode("games") } else setMode(sec);
+}));
+$("#back").addEventListener("click",()=>setMode("games"));
+
+// ---------- Message alerts ----------
+let unread=0; const BASE_TITLE=document.title;
+function seesChat(m){
+  if(GAME_MODES.includes(me.mode)) return false;
+  return me.mode==="translation"?m.mode==="translation":(m.mode==="default"&&m.app==="ping");
+}
+function relevant(m){return m.mode==="translation"||(m.mode==="default"&&m.app==="ping")}
+function notify(m){
+  if(seesChat(m)&&!document.hidden) return;
+  if(document.hidden){unread++;document.title=`(${unread}) ${BASE_TITLE}`}
+  const box=$("#toasts");
+  const t=document.createElement("button"); t.type="button"; t.className="toast";
+  const tt=el("div","tt"); const b=el("b",null,`${String(m.name||"Someone")} messaged you`);
+  const sp=el("span",null,String(m.text||"")); tt.append(b,sp);
+  t.append(pf(m.face,statusOf(m.uid),false,m.uid),tt);
+  t.setAttribute("aria-label",`${m.name} messaged you: ${m.text}. Tap to open the chat.`);
+  t.onclick=()=>{t.remove();setMode(m.mode==="translation"?"translation":"default")};
+  box.prepend(t); while(box.children.length>3) box.lastChild.remove();
+  setTimeout(()=>t.remove(),6000);
+}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){unread=0;document.title=BASE_TITLE}});
+
+// ---------- RPG mode: Demon Conqueror ----------
+const RPG_URL="https://demon-conqueror-server-1.onrender.com/upload";
+function renderRpg(){
+  const feed=$("#feed"); feed.innerHTML="";
+  const c=document.createElement("div"); c.className="rpg";
+  const i=document.createElement("div"); i.className="big"; i.textContent="⚔️";
+  const h=document.createElement("h3"); h.textContent="Demon Conqueror";
+  const p=document.createElement("p"); p.textContent="Grab your sword and take on the demons. The game opens in a new tab, and this chat stays here for when you come back.";
+  const a=document.createElement("a"); a.className="play"; a.href=RPG_URL; a.target="_blank"; a.rel="noopener"; a.textContent="▶ Play Demon Conqueror";
+  const note=document.createElement("small"); note.textContent="The game server may take up to a minute to wake up.";
+  c.append(i,h,p,a,note);
+  const playing=peers.filter(x=>!x.isMe&&x.presence&&x.presence.name&&x.presence.mode==="rpg");
+  if(playing.length){
+    const f=document.createElement("div"); f.className="rpg-friends";
+    const lab=document.createElement("span"); lab.textContent="Also playing:"; f.appendChild(lab);
+    playing.forEach(x=>{const s=document.createElement("span");s.append(pf(x.presence.face,x.presence.status||"away",true,x.by),document.createTextNode(x.presence.name));f.appendChild(s)});
+    c.appendChild(f);
+  }
+  feed.appendChild(c);
+}
+
+// ---------- AFK Game: RoastBot 3000 ----------
+const ROUND_SECS=30;
+const game={on:false,over:null,hp:100,hearts:3,feed:[],busy:false,deadline:0,left:ROUND_SECS,timer:null,best:0};
+let sampleFn=null, sampleTried=false;
+const OPENERS=[
+  "Beep boop. I've seen calculators with better comebacks than you. Go ahead, try me.",
+  "Scanning human… roast power detected: 2%. My toaster mode is scarier than you.",
+  "I run on 9 volt batteries and I'm STILL more charged up than you. Your move."
+];
+const COMEBACKS=[
+  "That roast had less power than a phone at 1%.",
+  "Error 404: funny not found.",
+  "My wifi lags less than your brain.",
+  "I've had software updates more exciting than that.",
+  "Even my rusty bolts are laughing, and not with you.",
+  "I'm a robot and even I felt nothing.",
+  "You type slower than my grandma's dial up modem.",
+  "Nice try. My spam filter roasts better than you."
+];
+const ROBOT_WORDS=["robot","beep","boop","battery","batteries","rust","rusty","wifi","update","toaster","bolt","bolts","screw","circuit","chip","code","bug","glitch","404","error","reboot","charger","volt","metal","tin","calculator","ai","computer","program","lag","dial","oil","antenna","wires","processor","download","pixel"];
+const NOT_OK=/\b(your mom|ur mom|yo mama|stupid|idiot|dumb|hate you|kill|shut up)\b/i;
+function wins(){return parseInt(load("bb.wins","0"),10)||0}
+
+function gpush(item){game.feed.push(item);renderGame()}
+function setMode(v){
+  if(me.mode==="afk"&&v!=="afk") pauseTimer();
+  me.mode=v; save("bb.mode",v);
+  if(v==="afk"&&game.on&&!game.busy) startTimer(game.left);
+  changed();
+}
+function hearts(){return "❤️".repeat(game.hearts)+"🖤".repeat(3-game.hearts)}
+function renderGameBar(){
+  $("#hpbar").style.width=Math.max(0,game.hp)+"%"; $("#hptxt").textContent=Math.max(0,Math.round(game.hp));
+  $("#tmbar").style.width=(game.left/ROUND_SECS*100)+"%"; $("#tmtxt").textContent=Math.ceil(game.left)+"s";
+  $("#tmwrap").classList.toggle("low",game.left<=8);
+  $("#hearts").textContent=hearts();
+  $("#wins").textContent=`Wins: ${wins()}`;
+}
+function renderGame(){
+  if(me.mode!=="afk") return;
+  renderGameBar();
+  const feed=$("#feed"); feed.innerHTML="";
+  if(!game.on&&!game.over&&!game.feed.length){
+    feed.appendChild(endcard("🤖","RoastBot 3000 is waiting",`Your friends are offline, so it's you vs. the robot. Roast it before the ${ROUND_SECS} second timer runs out. Keep it funny, not mean.`,"Start"));
+    return;
+  }
+  game.feed.forEach(m=>{
+    if(m.score!=null){const s=document.createElement("div");s.className="score";s.textContent=m.score;feed.appendChild(s);return}
+    if(m.sys){const s=document.createElement("div");s.className="sys";s.style.margin="0";s.textContent=m.sys;feed.appendChild(s);return}
+    const bot=m.who==="bot";
+    const row=document.createElement("div"); row.className="row"+(bot?" robot-row":" mine");
+    const body=document.createElement("div"); body.className="body";
+    const n=document.createElement("span"); n.className="whon"; n.textContent=bot?"RoastBot 3000":me.name;
+    body.append(n,document.createTextNode(m.text));
+    row.append(pf(bot?"🤖":me.face,bot?"online":myStatus(),true,bot?null:"me"),body); feed.appendChild(row);
+  });
+  if(game.over){
+    feed.appendChild(game.over==="win"
+      ?endcard("🏆","You roasted RoastBot!","Its battery hit 0%. That robot is going to need therapy and a charger.","Play again")
+      :endcard("💀","RoastBot wins","You ran out of lives. The robot is doing a victory dance. Get revenge?","Try again"));
+  }
+  feed.scrollTop=feed.scrollHeight;
+}
+function endcard(icon,h,p,btn){
+  const c=document.createElement("div"); c.className="endcard";
+  const i=document.createElement("div"); i.className="big"; i.textContent=icon;
+  const t=document.createElement("h3"); t.textContent=h;
+  const pp=document.createElement("p"); pp.textContent=p;
+  const b=document.createElement("button"); b.type="button"; b.className="gamebtn"; b.textContent=btn; b.onclick=startGame;
+  c.append(i,t,pp,b); return c;
+}
+async function startGame(){
+  Object.assign(game,{on:true,over:null,hp:100,hearts:3,feed:[],busy:false,left:ROUND_SECS});
+  gpush({who:"bot",text:OPENERS[Math.floor(Math.random()*OPENERS.length)]});
+  startTimer(ROUND_SECS); renderPhone(); $("#msg").focus();
+  if(!sampleTried&&window.claude&&claude.use){sampleTried=true;try{sampleFn=await claude.use("sample")}catch(e){sampleFn=null}}
+}
+function startTimer(secs){
+  pauseTimer(); game.left=secs; game.deadline=Date.now()+secs*1000;
+  game.timer=setInterval(()=>{
+    game.left=Math.max(0,(game.deadline-Date.now())/1000);
+    if(me.mode==="afk") renderGameBar();
+    if(game.left<=0){pauseTimer();timeUp()}
+  },200);
+}
+function pauseTimer(){clearInterval(game.timer);game.timer=null}
+function loseLife(msg){
+  game.hearts--; gpush({sys:msg});
+  if(game.hearts<=0){endGame("lose");return true}
+  return false;
+}
+function timeUp(){
+  if(!game.on) return;
+  if(loseLife("⏰ Time's up! You lost a life.")) return;
+  gpush({who:"bot",text:"Too slow! Did your brain need a software update? "+COMEBACKS[Math.floor(Math.random()*COMEBACKS.length)]});
+  startTimer(ROUND_SECS);
+}
+function endGame(result){
+  pauseTimer(); game.on=false; game.over=result; game.busy=false;
+  if(result==="win") save("bb.wins",String(wins()+1));
+  renderPhone();
+}
+function localJudge(text){
+  const t=text.toLowerCase();
+  if(NOT_OK.test(t)) return {score:0,reaction:"Whoa, keep it friendly!",comeback:"Roast the robot, not people. Try again, human."};
+  let score=1;
+  const hits=ROBOT_WORDS.filter(w=>new RegExp("\\b"+w+"\\b").test(t)).length;
+  score+=Math.min(hits*2,5);
+  if(text.length>25) score+=2; if(text.length>60) score+=1;
+  if(/[!?]|[\u{1F300}-\u{1FAFF}]/u.test(text)) score+=1;
+  if(text.length<8) score=Math.min(score,2);
+  score=Math.min(10,score);
+  const reactions=score>=8?["OUCH. My circuits are smoking.","Okay that one actually hurt.","Critical hit! Beep… beep…"]
+    :score>=5?["Not bad for a human.","Hmm, a little toasty.","I felt a tiny spark."]
+    :["Was that supposed to be a roast?","I barely felt that.","My fan didn't even turn on."];
+  return {score,reaction:reactions[Math.floor(Math.random()*3)],comeback:COMEBACKS[Math.floor(Math.random()*COMEBACKS.length)]};
+}
+async function judge(text){
+  if(sampleFn){
+    const recent=game.feed.filter(m=>m.text).slice(-6).map(m=>(m.who==="bot"?"RoastBot: ":"Player: ")+m.text).join("\n");
+    const prompt=`You are RoastBot 3000, a goofy robot in a roast battle game played by 6th graders. The player is trying to roast YOU, the robot. Rate their roast, then roast them back.
+Rules: keep everything PG, playful and silly, like friendly trash talk between friends. Your comeback may only joke about harmless things such as their roasting skills, typing speed, gaming skills, homework, or their jokes. Never joke about appearance, body, family, race, religion, gender, or anything hurtful. No swear words.
+Score 0 to 10 for creativity, humor, and how well it targets a robot (batteries, rust, wifi, updates, beeping, being a toaster, and so on). If the message is not a roast, is mean about real people, or uses bad words, give score 0, set reaction to a short friendly reminder, and set comeback to "Roast the robot, not people. Try again, human."
+Recent battle:
+${recent}
+Player's new roast: ${JSON.stringify(text.slice(0,300))}
+Reply with only JSON: {"score": number, "reaction": "your reaction to their roast, under 12 words", "comeback": "your roast back, under 25 words"}`;
+    try{
+      const r=await sampleFn.json(prompt,{modelTier:"quick",cache:false});
+      if(r&&typeof r.score==="number"){
+        return {score:Math.max(0,Math.min(10,Math.round(r.score))),reaction:String(r.reaction||"").slice(0,120),comeback:String(r.comeback||"").slice(0,220)};
+      }
+    }catch(e){ if(e&&(e.code==="not_granted")) sampleFn=null; }
+  }
+  await new Promise(r=>setTimeout(r,900));
+  return localJudge(text);
+}
+async function playerRoast(text){
+  pauseTimer(); game.busy=true;
+  gpush({who:"me",text:text.slice(0,300)}); renderPhone();
+  const r=await judge(text);
+  if(!game.on) return;
+  game.busy=false;
+  const dmg=r.score*4;
+  const fire=r.score>=8?"🔥🔥🔥":r.score>=5?"🔥🔥":r.score>=3?"🔥":"🧊";
+  gpush({score:`Roast Meter ${r.score}/10 ${fire}  ${r.score>=3?"RoastBot −"+dmg+" battery":"Too weak!"}`});
+  if(r.reaction) gpush({who:"bot",text:r.reaction});
+  if(r.score>=3){
+    game.hp-=dmg;
+    if(game.hp<=0){game.hp=0;endGame("win");return}
+  }else if(loseLife("💔 Weak roast. You lost a life.")) return;
+  if(r.comeback) gpush({who:"bot",text:r.comeback});
+  startTimer(ROUND_SECS); renderPhone(); $("#msg").focus();
+}
+
+renderSide(); renderPhone();
+
+(async()=>{
+  // Standalone version: no server, so the chat runs with practice friends saved on this device.
+  myId="me_local";
+  const c=$("#conn");
+  c.textContent="Offline version: chats here are with practice friends on this device. Games and the GIF maker fully work.";
+  const KEY="pp.local.msgs", AKEY="pp.local.avatars";
+  let msgs=[]; try{msgs=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){}
+  let avs={}; try{avs=JSON.parse(localStorage.getItem(AKEY)||"{}")}catch(e){}
+  const msgL=[], avL=[];
+  const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(msgs.slice(-200)))}catch(e){}};
+  const snapOf=added=>{const docs=msgs.slice(-200).reverse().map(m=>({data:()=>m}));return{docs,size:docs.length,empty:!docs.length,docChanges:()=>added.map(m=>({type:"added",doc:{data:()=>m}}))}};
+  const avSnap=()=>({docs:Object.entries(avs).map(([id,v])=>({id,data:()=>v}))});
+  const avEmit=()=>{try{localStorage.setItem(AKEY,JSON.stringify(avs))}catch(e){}avL.forEach(f=>f(avSnap()))};
+  const msgCol={orderBy(){return msgCol},limit(){return msgCol},
+    onSnapshot(fn){msgL.push(fn);setTimeout(()=>fn(snapOf([])),0);return()=>{}},
+    async add(m){msgs.push(m);persist();msgL.forEach(f=>f(snapOf([m])));if(m.uid===myId) botReply(m);return{id:String(m.ts)}}};
+  const avCol={onSnapshot(fn){avL.push(fn);setTimeout(()=>fn(avSnap()),0);return()=>{}},
+    doc(id){return{async set(v){avs[id]=v;avEmit()},async delete(){delete avs[id];avEmit()},async get(){return{exists:!!avs[id]}}}}};
+  db={collection:n=>n==="avatars"?avCol:msgCol};
+
+  const bots=[
+    {peer:"b1",by:"bot_ken",isMe:false,sameTab:false,kind:"viewer",guest:false,presence:{name:"Ken",face:"🐼",app:"ping",mode:"default",status:"online",typing:false}},
+    {peer:"b2",by:"bot_ava",isMe:false,sameTab:false,kind:"viewer",guest:false,presence:{name:"Ava",face:"🐰",app:"snap",mode:"translation",status:"online",typing:false}},
+    {peer:"b3",by:"bot_leo",isMe:false,sameTab:false,kind:"viewer",guest:false,presence:{name:"Leo",face:"🦁",app:"discord",mode:"translation",status:"away",typing:false}},
+    {peer:"b4",by:"bot_noah",isMe:false,sameTab:false,kind:"viewer",guest:false,presence:{name:"Noah",face:"🐸",app:"ping",mode:"afk",status:"away",typing:false}}
+  ];
+  const mine={peer:"me",by:myId,isMe:true,sameTab:true,kind:"viewer",guest:false,presence:{}};
+  const peerL=[];
+  const emitPeers=()=>{const list=[...(mine.presence.name?[mine]:[]),...bots];peerL.forEach(f=>f({peers:list,joined:[],left:[]}))};
+  room={presence(patch){Object.entries(patch).forEach(([k,v])=>{if(v===null)delete mine.presence[k];else mine.presence[k]=v});emitPeers();return Promise.resolve()},
+    onPeers(fn){peerL.push(fn);setTimeout(emitPeers,0);return()=>{}}};
+
+  const LINES={
+    ken:["Haha nice 😂","Yeah I'm here, what's up?","Wanna play AFK Roast Battle after this?","Same here","Okay sounds good 👍","Lol that's so true"],
+    ava:["Omg yes, I can see this from Snapchat!","I'll be there!","lol","Wait really?","The Bridge Bot is so cool"],
+    leo:["Sorry I was AFK, back now","Discord gang 💪","I'm in","Cool cool"]
+  };
+  const idx={ken:0,ava:0,leo:0};
+  function botReply(m){
+    const pool=m.mode==="translation"?[bots[1],bots[2]]:[bots[0]];
+    const b=pool[Math.floor(Math.random()*pool.length)], key=b.by.slice(4);
+    setTimeout(()=>{
+      b.presence.status="online"; b.presence.typing=true; emitPeers();
+      setTimeout(()=>{
+        b.presence.typing=false; emitPeers();
+        msgCol.add({uid:b.by,name:b.presence.name,face:b.presence.face,app:m.mode==="default"?"ping":b.presence.app,mode:m.mode,text:LINES[key][idx[key]++%LINES[key].length],ts:Date.now()});
+      },1600);
+    },900);
+  }
+  db.collection("avatars").onSnapshot(snap=>{
+    const next={}; snap.docs.forEach(d=>{const v=d.data();if(v&&okAvatar(v.img)) next[d.id]=v.img});
+    avatars=next; renderSide(); renderPhone();
+  });
+  let firstSnap=true;
+  db.collection("messages").orderBy("ts","desc").limit(200).onSnapshot(snap=>{
+    messages=snap.docs.map(d=>d.data()).filter(Boolean).reverse();
+    if(!firstSnap) snap.docChanges().forEach(ch=>{const m=ch.doc.data();if(m&&m.uid!==myId&&relevant(m)&&me.name) notify(m)});
+    firstSnap=false; renderPhone();
+  });
+  room.onPeers(ch=>{peers=ch.peers.slice();renderSide();renderPhone()});
+  pushPresence(); renderPhone();
+})();
+</script>
+
+</body>
+</html>
